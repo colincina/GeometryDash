@@ -15,5 +15,6 @@ public class Test {
 		System.out.println(t.foo);
 		System.out.println(t.bar);
 		System.out.println("Hello Colin, bientôt Weekend");
+		
 	}
 }
