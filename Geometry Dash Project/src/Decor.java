@@ -1,19 +1,23 @@
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Vector2;
+
+import ch.hevs.gdx2d.components.physics.primitives.PhysicsBox;
+import ch.hevs.gdx2d.components.physics.primitives.PhysicsStaticBox;
 import ch.hevs.gdx2d.lib.GdxGraphics;
 import ch.hevs.gdx2d.lib.interfaces.DrawableObject;
+import ch.hevs.gdx2d.lib.physics.AbstractPhysicsObject;
 
 
 public class Decor implements DrawableObject {
-	int xPos; 
-	int yPos; 
+
+	AbstractPhysicsObject floorBox; 
 	
-	public Decor(int x, int y){
-		
-		xPos = x; 
-		yPos = y; 	
+	public Decor(Vector2 position){
+		floorBox = new PhysicsStaticBox("Floor Part", position, 40, 40); 
 	}
 	
 	public void draw(GdxGraphics g) {
-		g.drawRectangle(xPos, yPos, g.getScreenHeight()/10, g.getScreenHeight()/10, 0);  
+		Vector2 pos = floorBox.getBodyPosition(); 
+		g.drawRectangle(pos.x, pos.y, 100, 100, 0);  
 	}
 }

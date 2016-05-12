@@ -1,11 +1,13 @@
 import java.util.Vector;
-import ch.hevs.gdx2d.components.physics.primitives.PhysicsBox;
+
+import ch.hevs.gdx2d.components.physics.utils.PhysicsConstants;
 import ch.hevs.gdx2d.desktop.PortableApplication;
 import ch.hevs.gdx2d.desktop.physics.DebugRenderer;
 import ch.hevs.gdx2d.lib.GdxGraphics;
 import ch.hevs.gdx2d.lib.interfaces.DrawableObject;
 import ch.hevs.gdx2d.lib.physics.PhysicsWorld;
 import ch.hevs.gdx2d.lib.utils.Logger;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
@@ -18,46 +20,51 @@ public class Window extends PortableApplication{
 	World world = PhysicsWorld.getInstance();
 	Vector<DrawableObject> toDraw = new Vector<DrawableObject>();
 	float travelSpeed = 10f; 
+	Vector2 movingForce; 
 	Cube cube1; 
+	
 	//Constructor
 	public Window(){
 		super(2000,1000);	
 	}
 	
 	public void onGraphicRender(GdxGraphics g) {
-		g.clear(); 
 		
+		g.clear(); 
+		PhysicsWorld.updatePhysics(Gdx.graphics.getDeltaTime());
 		//Draw the objects
 		for (DrawableObject obj : toDraw) {
 			obj.draw(g); 
 		}
+		cube1.draw(g); 
 		
-		//Controls to make the camera move
 		if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
-			g.scroll(travelSpeed, 0); 
-			cube1.move(); 
+			cube1.forward = true; 
+			cube1.backward = false;
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.LEFT)){
-			g.scroll(travelSpeed*-1, 0); 
-			cube1.move(); 
+			cube1.backward = true; 
+			cube1.forward = false;     
 		}
-		cube1.draw(g); 
+		if (Gdx.input.isKeyPressed(Input.Keys.SPACE)){
+			cube1.jump = true; 
+		}
+//		cube1.jump = false; 
+		//Controls to make the camera move
+		g.moveCamera(cube1.cubeBox.getBodyPosition().x - 100, cube1.cubeBox.getBodyPosition().y - 120);
 	}
 
 	public void onInit() {
-		Logger.log("Welcome to the jumping cube game!"); 
+		
+		world.setGravity(new Vector2(0, -9.81f));
+		movingForce = new Vector2(100, 0); 
 		
 		//add the cube
-		/*
-		 * always add the cube first so we know its position in the vector
-		 */
-		cube1 = new Cube(new Vector2(100, 120)); 
+		cube1 = new Cube(new Vector2(100, 200)); 
 		Logger.log("Cube has been created");
 
 		//add the background
 		toDraw.add(new Background()); 
-		
-				 
 	
 		//add the enemies
 		int totalEnnemies = 0; 
@@ -66,13 +73,15 @@ public class Window extends PortableApplication{
 			totalEnnemies++; 
 		}
 		Logger.log(totalEnnemies + "Ennemies have been created"); 
+		
 		//add the floor blocks
 		int totalBlocks = 0; 
 		for(int i = 0; i < 100; i++){			
-			toDraw.add(new Decor(50+i*100, 50));
+			toDraw.add(new Decor(new Vector2(50+i*100, 50)));
 			totalBlocks++; 
 		}
 		Logger.log(totalBlocks + "Floor blocks have been created"); 
+	
 	}
 	
 	public static void main(String args[]){
