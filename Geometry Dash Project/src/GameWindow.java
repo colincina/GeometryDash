@@ -57,7 +57,7 @@ public class GameWindow extends PortableApplication{
 		
 		world.setGravity(new Vector2(0, -20f));
 		movingForce = new Vector2(100, 0); 
-		
+		 
 		//add the cube
 		cube1 = new Cube(new Vector2(100, 120)); 
 		Logger.log("Cube has been created");
