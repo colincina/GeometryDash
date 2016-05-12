@@ -14,7 +14,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 
 
-public class Window extends PortableApplication{
+public class GameWindow extends PortableApplication{
 
 	DebugRenderer dbgRenderer;
 	World world = PhysicsWorld.getInstance();
@@ -24,7 +24,7 @@ public class Window extends PortableApplication{
 	Cube cube1; 
 	
 	//Constructor
-	public Window(){
+	public GameWindow(){
 		super(2000,1000);	
 	}
 	
@@ -49,18 +49,17 @@ public class Window extends PortableApplication{
 		if (Gdx.input.isKeyPressed(Input.Keys.SPACE)){
 			cube1.jump = true; 
 		}
-//		cube1.jump = false; 
 		//Controls to make the camera move
 		g.moveCamera(cube1.cubeBox.getBodyPosition().x - 100, cube1.cubeBox.getBodyPosition().y - 120);
 	}
 
 	public void onInit() {
 		
-		world.setGravity(new Vector2(0, -9.81f));
+		world.setGravity(new Vector2(0, -20f));
 		movingForce = new Vector2(100, 0); 
 		
 		//add the cube
-		cube1 = new Cube(new Vector2(100, 200)); 
+		cube1 = new Cube(new Vector2(100, 120)); 
 		Logger.log("Cube has been created");
 
 		//add the background
@@ -69,22 +68,24 @@ public class Window extends PortableApplication{
 		//add the enemies
 		int totalEnnemies = 0; 
 		for(int i = 0; i < 20; i++){			
-			toDraw.add(new Ennemies(100 + (int)(Math.random()*200) * i, (int)(Math.random()*200 + 500)));
+			toDraw.add(new Ennemies(200+(int)(Math.random()*1000)*i, (int)(Math.random()*300+500)));
 			totalEnnemies++; 
 		}
-		Logger.log(totalEnnemies + "Ennemies have been created"); 
+		Logger.log(totalEnnemies + " Ennemies have been created"); 
 		
 		//add the floor blocks
+		
 		int totalBlocks = 0; 
 		for(int i = 0; i < 100; i++){			
 			toDraw.add(new Decor(new Vector2(50+i*100, 50)));
 			totalBlocks++; 
 		}
-		Logger.log(totalBlocks + "Floor blocks have been created"); 
+		Logger.log(totalBlocks + " Floor blocks have been created"); 
 	
+
 	}
 	
 	public static void main(String args[]){
-		new Window(); 
+		new GameWindow(); 
 	}
 }

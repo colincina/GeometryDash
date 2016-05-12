@@ -17,12 +17,13 @@ public class Cube implements DrawableObject{
 	public Cube(Vector2 position){
 		
 		//Careful!!! the size of the box and the cube may not be the same 
-		cubeBox = new PhysicsBox("Cube", position, 40, 40); 
+		cubeBox = new PhysicsBox("Cube", position, 40, 40, 0, 0, 0); 
 	}
 	
 	public void draw(GdxGraphics g) {
 		if(jump){
-		cubeBox.applyBodyForceToCenter(0, 10, true); 
+		cubeBox.applyBodyForceToCenter(0, 20, true);
+		jump = false; 
 		}
 		if(forward){
 		cubeBox.setBodyLinearVelocity(5f, 0);	

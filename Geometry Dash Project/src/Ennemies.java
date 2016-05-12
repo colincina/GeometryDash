@@ -14,6 +14,6 @@ public class Ennemies implements DrawableObject {
 	}
 
 	public void draw(GdxGraphics g) {
-		g.drawFilledCircle((float) xPos, (float) yPos,(float) g.getScreenHeight() / 50, Color.DARK_GRAY	);
+		g.drawFilledCircle((float) xPos, (float) yPos,(float) g.getScreenHeight() / 50, Color.RED);
 	}
 }

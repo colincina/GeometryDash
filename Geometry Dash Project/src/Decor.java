@@ -1,7 +1,4 @@
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
-
-import ch.hevs.gdx2d.components.physics.primitives.PhysicsBox;
 import ch.hevs.gdx2d.components.physics.primitives.PhysicsStaticBox;
 import ch.hevs.gdx2d.lib.GdxGraphics;
 import ch.hevs.gdx2d.lib.interfaces.DrawableObject;
@@ -13,7 +10,8 @@ public class Decor implements DrawableObject {
 	AbstractPhysicsObject floorBox; 
 	
 	public Decor(Vector2 position){
-		floorBox = new PhysicsStaticBox("Floor Part", position, 40, 40); 
+	
+		floorBox = new PhysicsStaticBox("Floor Part", position, 100, 100); 
 	}
 	
 	public void draw(GdxGraphics g) {
