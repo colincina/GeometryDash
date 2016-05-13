@@ -78,7 +78,6 @@ public class MenuWindow extends PortableApplication {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
 				super.clicked(event, x, y);
-				if (newGameButton.isChecked()){
 					
 					if(MenuWindow.this.newGameButton.isChecked()){
 						state = "On"; 
@@ -89,7 +88,6 @@ public class MenuWindow extends PortableApplication {
 					}
 					stateCounter++; 
 					MenuWindow.this.newGameButton.setText("Sound " + state);
-				}
 			}
 		});
 	}
@@ -102,7 +100,7 @@ public class MenuWindow extends PortableApplication {
 		stage.act();
 		stage.draw();
 
-		g.drawStringCentered(getWindowHeight() / 4, "Sound " + newGameButton.isChecked());
+		g.drawStringCentered(getWindowHeight() / 4, "Colin Cina & Martin Juon");
 		g.drawSchoolLogo();
 		g.drawFPS();
 	}
