@@ -13,26 +13,31 @@ public class Cube implements DrawableObject{
 	boolean forward = false; 
 	boolean backward = false; 
 	boolean jump = false; 
+	int size; 
 	
-	public Cube(Vector2 position){
+	public Cube(Vector2 position, int size){
 		
-		//Careful!!! the size of the box and the cube may not be the same 
-		cubeBox = new PhysicsBox("Cube", position, 40, 40, 0, 0, 0); 
+		cubeBox = new PhysicsBox("Cube", position, size, size, 2f, 0, 0); 
+		this.size = size;
 	}
 	
 	public void draw(GdxGraphics g) {
 		if(jump){
-		cubeBox.applyBodyForceToCenter(0, 20, true);
-		jump = false; 
+//		cubeBox.applyBodyForceToCenter(0, 100f, true);
+//		jump = false; 
+		Vector2 impulse = new Vector2(0, 0.1f); 
+		Vector2 pos = cubeBox.getBodyPosition(); 
+		cubeBox.applyBodyLinearImpulse(0, 0.01f, pos.x, pos.y, true); 
 		}
+		jump = false; 
 		if(forward){
-		cubeBox.setBodyLinearVelocity(5f, 0);	
+		cubeBox.setBodyLinearVelocity(5f, 0);	 
 		}
 		if(backward){
 			cubeBox.setBodyLinearVelocity(-5f, 0);	
 			}
 		Vector2 pos = cubeBox.getBodyPosition(); 
-		g.drawFilledRectangle(pos.x, pos.y, 40, 40, 0); 
+		g.drawFilledRectangle(pos.x, pos.y, size, size, 0); 
 	}
 }
 
