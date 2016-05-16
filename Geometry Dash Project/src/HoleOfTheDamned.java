@@ -8,11 +8,11 @@ import com.badlogic.gdx.math.Vector2;
 
 public class HoleOfTheDamned extends PhysicsStaticBox implements DrawableObject {
 
-	int size; 
+	int width; 
 	
-	public HoleOfTheDamned(String name, Vector2 position, int size) {
-		super(name, position, size, size, 0);
-		this.size = size; 
+	public HoleOfTheDamned(String name, Vector2 position, int width) {
+		super(name, position, width, 100, 0);
+		this.width = width; 
 	}
 		@Override
 		public void collision(AbstractPhysicsObject theOtherObject, float energy) {
@@ -21,6 +21,6 @@ public class HoleOfTheDamned extends PhysicsStaticBox implements DrawableObject 
 		}
 		public void draw(GdxGraphics g) {
 			Vector2 pos = this.getBodyPosition(); 
-			g.drawFilledRectangle(pos.x, pos.y, size, size, 0, Color.RED);
+			g.drawFilledRectangle(pos.x, pos.y, width, 100, 0, Color.RED);
 		}
 }
