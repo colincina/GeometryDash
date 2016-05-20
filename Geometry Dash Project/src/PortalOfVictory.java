@@ -20,7 +20,7 @@ int size;
 			System.out.println("Yaaaay, " + theOtherObject.name + " made it to " + this.name);
 		}
 		public void draw(GdxGraphics g) {
-			Vector2 pos = this.getBodyPosition(); 
+			Vector2 pos = this.getBodyWorldCenter(); 
 			g.drawFilledRectangle(pos.x, pos.y, size, size*2, 0, Color.GREEN);
 		}
 }

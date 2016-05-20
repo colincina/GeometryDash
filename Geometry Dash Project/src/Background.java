@@ -7,7 +7,7 @@ public class Background implements DrawableObject {
 
 	BitmapImage bckgrnd;
 	public Background(){
-		bckgrnd = new BitmapImage("data/images/CrownNebula.bmp/");; 
+		bckgrnd = new BitmapImage("data/images/space.bmp/");; 
 	}
 	public void draw(GdxGraphics g) {
 		g.drawBackground(bckgrnd, 0, 0); 
