@@ -19,6 +19,6 @@ public class MapEntity2 implements DrawableObject {
 	}
 	public void draw(GdxGraphics g) {
 		Vector2 pos = new Vector2(stepBox.getBodyWorldCenter());
-		g.drawFilledRectangle(pos.x, pos.y, length, height, 0, Color.LIGHT_GRAY); 
+		g.drawFilledRectangle(pos.x, pos.y, length, height, 0, Color.ORANGE); 
 	}
 }

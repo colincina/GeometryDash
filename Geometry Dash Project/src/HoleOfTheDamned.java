@@ -16,6 +16,7 @@ public class HoleOfTheDamned extends PhysicsStaticBox implements DrawableObject 
 		@Override
 		public void collision(AbstractPhysicsObject theOtherObject, float energy) {
 			super.collision(theOtherObject, energy);
+			this.name = "Collided Hole"; 
 			System.out.println(theOtherObject.name + " Collided with " + this.name);
 		}
 		public void draw(GdxGraphics g) {
