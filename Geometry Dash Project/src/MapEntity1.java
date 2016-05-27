@@ -8,14 +8,13 @@ public class MapEntity1 implements DrawableObject {
 
 	HoleOfTheDamned hole; 
 	PhysicsStaticBox platform; 
-	//to make the length of the platform random
 	Vector2 pos = new Vector2(0, 50); 
 	int platformLength; 
 
 	public MapEntity1(int platformLength, int holeWidth, Vector2 holePosition) {
 		
 		this.platformLength = platformLength; 
-		hole = new HoleOfTheDamned("hole", holePosition, holeWidth); 
+		hole = new HoleOfTheDamned("hole", holePosition, holeWidth, 80); 
 		hole.setSensor(true); 
 		hole.enableCollisionListener();
 		pos.x += (holePosition.x + holeWidth/2 + platformLength/2); 

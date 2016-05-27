@@ -11,11 +11,11 @@ import com.badlogic.gdx.math.Vector2;
  
 public class Cube implements DrawableObject{
 	AbstractPhysicsObject cubeBox; 
-	Vector2 vel; 
 	Vector2 pos;
 	boolean jump = false; 
 	boolean grounded = true; 
 	int size; 
+	float speed = 40f;
 	float impulse; 
 	BitmapImage cubeSkin; 
 	
@@ -29,9 +29,10 @@ public class Cube implements DrawableObject{
 	}
 	
 	public void update(){
+		
 		//linear x movement of the cube 
-		cubeBox.applyBodyForceToCenter(15f, 0, true); 
-		cubeBox.setBodyLinearDamping(0.4f); 
+		cubeBox.applyBodyForceToCenter(speed, 0, true); 
+		cubeBox.setBodyLinearDamping(0.3f); 
 		pos = cubeBox.getBodyWorldCenter(); 
 		
 		if(jump && grounded){
