@@ -1,3 +1,8 @@
+import ch.hevs.gdx2d.components.screen_management.RenderingScreen;
+import ch.hevs.gdx2d.desktop.PortableApplication;
+import ch.hevs.gdx2d.lib.GdxGraphics;
+import ch.hevs.gdx2d.lib.physics.PhysicsWorld;
+import ch.hevs.gdx2d.lib.utils.Logger;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -8,12 +13,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
-import ch.hevs.gdx2d.desktop.PortableApplication;
-import ch.hevs.gdx2d.lib.GdxGraphics;
-import ch.hevs.gdx2d.lib.utils.Logger;
 
-
-public class MenuWindow extends PortableApplication {
+public class MenuWindow extends RenderingScreen {
 
 	Skin skin;
 	Stage stage;
@@ -26,12 +27,11 @@ public class MenuWindow extends PortableApplication {
 		new MenuWindow();
 	}
 
-	@Override
-	public void onInit() {
+	
+	public void onInit(){
+		
 		int buttonWidth = 180;
 		int buttonHeight = 30;
-
-		setTitle("Jumping Cube");
 
 		stage = new Stage();
 		Gdx.input.setInputProcessor(stage);// Make the stage consume events
@@ -92,7 +92,7 @@ public class MenuWindow extends PortableApplication {
 		});
 	}
 	
-	@Override
+
 	public void onGraphicRender(GdxGraphics g) {
 		g.clear(Color.NAVY);
 
@@ -100,15 +100,15 @@ public class MenuWindow extends PortableApplication {
 		stage.act();
 		stage.draw();
 
-		g.drawStringCentered(getWindowHeight() / 4, "Colin Cina & Martin Juon");
+//		g.drawStringCentered(getWindowHeight() / 4, "Colin Cina & Martin Juon");
 		g.drawSchoolLogo();
 		g.drawFPS();
 	}
 
 	@Override
-	public void onDispose() {
-		super.onDispose();
-		stage.dispose();
-		skin.dispose();
+	public void dispose() {
+		PhysicsWorld.dispose();
+		super.dispose();
 	}
 }
+
