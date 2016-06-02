@@ -11,7 +11,6 @@ public class DoubleJumpBox extends PhysicsStaticBox implements DrawableObject {
 
 	float width; 
 	float height; 
-	boolean cubeReJump = false; 
 	
 	public DoubleJumpBox(String name, Vector2 position, float width, float height, float angle) {
 		super(name, position, width, height, angle);
@@ -24,11 +23,14 @@ public class DoubleJumpBox extends PhysicsStaticBox implements DrawableObject {
 	@Override
 	public void collision(AbstractPhysicsObject theOtherObject, float energy) {
 		super.collision(theOtherObject, energy);
-		if(theOtherObject.getClass() == Cube.class){
-		cubeReJump = true; 
-		Logger.log("Cube is allowed to jump once again");
+		
+		if (theOtherObject instanceof Cube) {
+			((Cube) theOtherObject).isTouching = true;
+			((Cube) theOtherObject).specialJump = true;
+			
 		}
 	}
+	
 	
 	public void draw(GdxGraphics g) {
 		
