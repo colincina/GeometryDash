@@ -14,7 +14,7 @@ public class Particle extends PhysicsBox implements DrawableObject{
 	long seed; 
 	
 	public Particle(String name, Vector2 position, int size, long seed){
-		super(name, position, size, size, 50f, 0, 5f, 0); 
+		super(name, position, size, size, 50f, 0.5f, 0, 0); 
 		this.size = size; 
 		this.seed = seed; 
 		r = new Random(seed);

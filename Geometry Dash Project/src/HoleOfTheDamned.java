@@ -8,28 +8,30 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 
 public class HoleOfTheDamned extends PhysicsStaticBox implements DrawableObject {
-
+	
+	boolean playerDiedInMe = false; 
 	float width;
 	float height;
-	boolean playerDiedInMe = false;
 	SoundSample sDeath; 
 
-	public HoleOfTheDamned(String name, Vector2 position, int width, int height) {
+	public HoleOfTheDamned(String name, Vector2 position, int width, int height, SoundSample sound) {
 		super(name, position, width, height, 0);
 		this.width = width;
 		this.height = height;
-		sDeath = new SoundSample("data/sounds/death.mp3");
+		sDeath = sound; 
 	}
 
 	@Override
 	public void collision(AbstractPhysicsObject theOtherObject, float energy) {
 		super.collision(theOtherObject, energy);
 		
-		if(theOtherObject.getClass() == Cube.class){
-			this.playerDiedInMe = true;
+		if (theOtherObject instanceof Cube) {
+			Cube cube1 = (Cube) theOtherObject;
+			cube1.cubeDead = true; 
+			playerDiedInMe = true; 
 			sDeath.play(); 
+			System.out.println(theOtherObject.name + " Collided with " + this.name);
 		}
-		System.out.println(theOtherObject.name + " Collided with " + this.name);
 	}
 
 	public void draw(GdxGraphics g) {

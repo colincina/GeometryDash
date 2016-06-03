@@ -1,27 +1,27 @@
-import javax.lang.model.SourceVersion;
-
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import ch.hevs.gdx2d.components.audio.SoundSample;
 import ch.hevs.gdx2d.components.bitmaps.BitmapImage;
 import ch.hevs.gdx2d.components.screen_management.RenderingScreen;
 import ch.hevs.gdx2d.lib.GdxGraphics;
 import ch.hevs.gdx2d.lib.ScreenManager;
 import ch.hevs.gdx2d.lib.utils.Logger;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldListener;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 
-public class MenuWindow extends RenderingScreen{
-
+public class ControlMenu extends RenderingScreen{
+	
 	Skin skin;
 	Stage stage;
-	TextButton controlPanelButton, startGameButton;
+	TextButton backToMainButton, soundOnOffButton;
+	Slider volumeSlider; 
 	TextField textArea;
 	int stateCounter = 0; 
 	String state; 
@@ -49,16 +49,16 @@ public class MenuWindow extends RenderingScreen{
 		// Load the default skin (which can be configured in the JSON file)
 		skin = new Skin(Gdx.files.internal("data/ui/uiskin.json"));
 
-		controlPanelButton = new TextButton("Sound Parameters", skin); // Use the initialized skin
-		controlPanelButton.setWidth(buttonWidth);
-		controlPanelButton.setHeight(buttonHeight);
+		backToMainButton = new TextButton("Sound Off", skin); // Use the initialized skin
+		backToMainButton.setWidth(buttonWidth);
+		backToMainButton.setHeight(buttonHeight);
 
-		startGameButton = new TextButton("Start Game", skin); // Use the initialized skin
-		startGameButton.setWidth(buttonWidth);
-		startGameButton.setHeight(buttonHeight);
+		soundOnOffButton = new TextButton("Start Game", skin); // Use the initialized skin
+		soundOnOffButton.setWidth(buttonWidth);
+		soundOnOffButton.setHeight(buttonHeight);
 
-		controlPanelButton.setPosition(Gdx.graphics.getWidth() / 2 - buttonWidth / 2, (int) (Gdx.graphics.getHeight() * .6));
-		startGameButton.setPosition(Gdx.graphics.getWidth() / 2 - buttonWidth / 2, (int) (Gdx.graphics.getHeight() * .7));
+		backToMainButton.setPosition(Gdx.graphics.getWidth() / 2 - buttonWidth / 2, (int) (Gdx.graphics.getHeight() * .6));
+		soundOnOffButton.setPosition(Gdx.graphics.getWidth() / 2 - buttonWidth / 2, (int) (Gdx.graphics.getHeight() * .7));
 
 		textArea = new TextField("Enter your name...", skin);
 		textArea.setWidth(buttonWidth);
@@ -77,28 +77,39 @@ public class MenuWindow extends RenderingScreen{
 		/**
 		 * Adds the buttons to the stage
 		 */
-		stage.addActor(controlPanelButton);
-		stage.addActor(startGameButton);
+		stage.addActor(backToMainButton);
+		stage.addActor(soundOnOffButton);
 		stage.addActor(textArea);
 
 		/**
 		 * Register listener
 		 */
-		controlPanelButton.addListener(new ClickListener() {
+		backToMainButton.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
 				super.clicked(event, x, y);
-				ScreenHub.s.transitionTo(3, ScreenManager.TransactionType.SLIDE);
+					
+					if(ControlMenu.this.soundOnOffButton.isChecked()){
+						state = "On"; 
+					}
+					if(!ControlMenu.this.soundOnOffButton.isChecked())
+					{
+						state = "Off"; 
+					}
+					stateCounter++; 
+					ControlMenu.this.soundOnOffButton.setText("Sound " + state);
 			}
 		});
 		
-		startGameButton.addListener(new ClickListener() {
+		soundOnOffButton.addListener(new ClickListener() {
+			
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
 				super.clicked(event, x, y);
 				ScreenHub.s.transitionTo(1, ScreenManager.TransactionType.SMOOTH); 
 			}
 		});
+	
 		loop.loop(); 
 	}
 	
@@ -124,4 +135,3 @@ public class MenuWindow extends RenderingScreen{
 		super.dispose();
 	}
 }
-

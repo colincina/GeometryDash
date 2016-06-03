@@ -1,6 +1,8 @@
 import java.util.Vector;
 
 import com.badlogic.gdx.math.Vector2;
+
+import ch.hevs.gdx2d.components.audio.SoundSample;
 import ch.hevs.gdx2d.lib.GdxGraphics;
 import ch.hevs.gdx2d.lib.interfaces.DrawableObject;
 
@@ -14,9 +16,13 @@ public class MapEntity4 implements DrawableObject {
 	int middleYPoint = 600; 
 	int lowYPoint = 400;
 	
-	public MapEntity4(String name, Vector2 position, int length, int boxDim) {
+	SoundSample death; 
+	
+	public MapEntity4(String name, Vector2 position, int length, int boxDim, SoundSample sound) {
+		
 		this.pos = position;
-		hole = new HoleOfTheDamned("Hole", pos, length, 25); 
+		this.death = sound; 
+		hole = new HoleOfTheDamned("Hole", pos, length, 25, death); 
 		hole.enableCollisionListener(); 
 		hole.setSensor(true); 
 		pos.x -= length/2 - 200; 

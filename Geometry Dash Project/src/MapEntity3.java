@@ -1,5 +1,7 @@
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
+
+import ch.hevs.gdx2d.components.audio.SoundSample;
 import ch.hevs.gdx2d.components.physics.primitives.PhysicsStaticBox;
 import ch.hevs.gdx2d.lib.GdxGraphics;
 import ch.hevs.gdx2d.lib.interfaces.DrawableObject;
@@ -26,14 +28,16 @@ public class MapEntity3 implements DrawableObject{
 	
 	boolean bigSize = true; 
 
-	public MapEntity3(int sWidth, int sHeight, int platformLength, int hWidth, Vector2 firstStepPosition) {
+	SoundSample death; 
+	
+	public MapEntity3(int sWidth, int sHeight, int platformLength, int hWidth, Vector2 firstStepPosition, SoundSample sound) {
 		
 		this.platformLength = platformLength; 
 		this.stepWidth = sWidth; 
 		this.stepHeight = sHeight; 
 		this.holeWidth = hWidth; 
 		this.pos = firstStepPosition; 
-		
+		this.death = sound; 
 		if(Math.random()*2 > 1){
 			this.stepWidth = stepWidth/2; 
 			this.stepHeight = stepHeight/2; 
@@ -45,7 +49,7 @@ public class MapEntity3 implements DrawableObject{
 	}
 
 	public void buildBigEntity(){
-		hole1 = new HoleOfTheDamned("Hole 1", pos, holeWidth, 25);
+		hole1 = new HoleOfTheDamned("Hole 1", pos, holeWidth, 25, death);
 		hole1.setSensor(true); 
 		hole1.enableCollisionListener();
 		pos.x += stepWidth/2 + holeWidth/2; 
@@ -54,7 +58,7 @@ public class MapEntity3 implements DrawableObject{
 		step1 = new PhysicsStaticBox("Box 1", pos, stepWidth, stepHeight);
 		pos.x += stepWidth/2 + holeWidth/2; 
 		
-		hole2 = new HoleOfTheDamned("Hole 2", pos, holeWidth, 25);
+		hole2 = new HoleOfTheDamned("Hole 2", pos, holeWidth, 25, death);
 		hole2.setSensor(true); 
 		hole2.enableCollisionListener();
 		pos.x += stepWidth/2 + holeWidth/2; 
@@ -63,7 +67,7 @@ public class MapEntity3 implements DrawableObject{
 		step2 = new PhysicsStaticBox("Box 2", pos, stepWidth, stepHeight);
 		pos.x += stepWidth/2 + holeWidth/2; 
 		
-		hole3 = new HoleOfTheDamned("Hole 3", pos, holeWidth, 25);
+		hole3 = new HoleOfTheDamned("Hole 3", pos, holeWidth, 25, death);
 		hole3.setSensor(true); 
 		hole3.enableCollisionListener();
 		pos.x += platformLength/2 + holeWidth/2; 
@@ -73,7 +77,7 @@ public class MapEntity3 implements DrawableObject{
 	}
 	
 	public void buildSmallEntity(){
-		hole1 = new HoleOfTheDamned("Hole 1", pos, holeWidth, 25);
+		hole1 = new HoleOfTheDamned("Hole 1", pos, holeWidth, 25, death);
 		hole1.setSensor(true); 
 		hole1.enableCollisionListener();
 		pos.x += stepWidth/2 + holeWidth/2; 
@@ -82,7 +86,7 @@ public class MapEntity3 implements DrawableObject{
 		step1 = new PhysicsStaticBox("Box 1", pos, stepWidth, stepHeight);
 		pos.x += stepWidth/2 + holeWidth/2; 
 		
-		hole2 = new HoleOfTheDamned("Hole 2", pos, holeWidth, 25);
+		hole2 = new HoleOfTheDamned("Hole 2", pos, holeWidth, 25, death);
 		hole2.setSensor(true); 
 		hole2.enableCollisionListener();
 		pos.x += stepWidth/2 + holeWidth/2; 
@@ -91,7 +95,7 @@ public class MapEntity3 implements DrawableObject{
 		step2 = new PhysicsStaticBox("Box 2", pos, stepWidth, stepHeight);
 		pos.x += stepWidth/2 + holeWidth/2; 
 		
-		hole3 = new HoleOfTheDamned("Hole 3", pos, holeWidth, 25);
+		hole3 = new HoleOfTheDamned("Hole 3", pos, holeWidth, 25, death);
 		hole3.setSensor(true); 
 		hole3.enableCollisionListener();
 		pos.x += platformLength/2 + holeWidth/2; 

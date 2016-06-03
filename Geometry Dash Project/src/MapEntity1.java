@@ -1,3 +1,4 @@
+import ch.hevs.gdx2d.components.audio.SoundSample;
 import ch.hevs.gdx2d.components.physics.primitives.PhysicsStaticBox;
 import ch.hevs.gdx2d.lib.GdxGraphics;
 import ch.hevs.gdx2d.lib.interfaces.DrawableObject;
@@ -14,11 +15,11 @@ public class MapEntity1 implements DrawableObject {
 	int platformLength;
 	int holeWidth; 
 
-	public MapEntity1(int platformLength, int holeWidth, Vector2 holePosition) {
+	public MapEntity1(int platformLength, int holeWidth, Vector2 holePosition, SoundSample death) {
 		
 		this.platformLength = platformLength; 
 		this.holeWidth = holeWidth; 
-		hole = new HoleOfTheDamned("hole", holePosition, holeWidth, 25); 
+		hole = new HoleOfTheDamned("hole", holePosition, holeWidth, 25, death); 
 		hole.setSensor(true); 
 		hole.enableCollisionListener();
 		pos.x += (holePosition.x + holeWidth/2 + platformLength/2); 

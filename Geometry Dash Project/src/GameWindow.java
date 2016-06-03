@@ -3,13 +3,13 @@ import java.util.Vector;
 
 import ch.hevs.gdx2d.components.audio.SoundSample;
 import ch.hevs.gdx2d.components.bitmaps.BitmapImage;
-import ch.hevs.gdx2d.desktop.PortableApplication;
+import ch.hevs.gdx2d.components.screen_management.RenderingScreen;
 import ch.hevs.gdx2d.desktop.physics.DebugRenderer;
 import ch.hevs.gdx2d.lib.GdxGraphics;
+import ch.hevs.gdx2d.lib.ScreenManager;
 import ch.hevs.gdx2d.lib.interfaces.DrawableObject;
 import ch.hevs.gdx2d.lib.physics.PhysicsWorld;
 import ch.hevs.gdx2d.lib.utils.Logger;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
@@ -17,16 +17,16 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.WorldManifold;
-import com.badlogic.gdx.utils.Array;
 
 
-public class GameWindow extends PortableApplication{
+public class GameWindow extends RenderingScreen{
 
 	DebugRenderer dbgRenderer;
 	World world = PhysicsWorld.getInstance();
 	WorldManifold manifold;
 	Vector<DrawableObject> toDraw = new Vector<DrawableObject>();
 	Vector<HoleOfTheDamned> holes = new Vector<HoleOfTheDamned>(); 
+	Vector<SoundSample> cubeSounds = new Vector<SoundSample>();  
 	Vector2 globalPosition = new Vector2(1000, 50); 
 	Cube cube1;
 	DoubleJumpBox d; 
@@ -43,21 +43,25 @@ public class GameWindow extends PortableApplication{
 	private boolean debugDraw; 
 	private boolean noMore2 = false; 
 	private boolean noMore3 = false; 
+	
 	Random randomLength; 
 	
-	SoundSample s1; 
+	SoundSample sBirth, sDeath, sImpact; 
 	
-	//Constructor
-	public GameWindow(){
-		super(2000,1000);	
-	}
 	
 	public void onInit() {
 		
 		long seed = (long)(Math.random()*10000); 
 		randomLength = new Random(seed); 
 		BitmapImage cubeSkin = new BitmapImage("data/images/qr3.png");
-		s1 = new SoundSample("data/sounds/birth.mp3"); 
+		
+		sBirth = new SoundSample("data/sounds/birth.mp3");
+		sDeath = new SoundSample("data/sounds/death.mp3");
+		sDeath.setVolume(0.2f); 
+		sImpact= new SoundSample("data/sounds/impact.mp3");
+		sImpact.setVolume(0.2f); 
+		cubeSounds.add(sBirth); 
+		cubeSounds.add(sImpact); 
 		
 		world.setGravity(new Vector2(0, -25f));
 		
@@ -65,16 +69,15 @@ public class GameWindow extends PortableApplication{
 //		toDraw.add(new Background()); 
 		
 		//add the cube
-		cube1 = new Cube(new Vector2(100, 1000), 75, cubeSkin); 
+		cube1 = new Cube(new Vector2(100, 1000), 75, cubeSkin, cubeSounds); 
 		toDraw.add(cube1); 
 		Logger.log("Cube has been created");
-		s1.play(); 
 		
 		//start platform added 
 		toDraw.add(new StartPlatform(1000)); 
-		globalPosition.x += 1000; 
-		globalPosition.y = 50; 
-		toDraw.add(new MapEntity4("Air Time", globalPosition, 2000, 20)); 
+//		globalPosition.x += 1000; 
+//		globalPosition.y = 50; 
+//		toDraw.add(new MapEntity4("Air Time", globalPosition, 2000, 20, sDeath)); 
 		
 		for(int i = 0; i < 50; i++){
 			
@@ -128,18 +131,23 @@ public class GameWindow extends PortableApplication{
 			cube1.emitParticle(); 
 		}
 		
+		if(cube1.cubeDead){
+			ScreenHub.s.transitionTo(2, ScreenManager.TransactionType.SLICE); 
+		}
+		
 		g.drawFPS(Color.WHITE);
 	}
 	
-//	@Override
-//	public void dispose() {
-//		PhysicsWorld.dispose();
-//		super.dispose();
-//	}
+	@Override
+	public void dispose() {
+		PhysicsWorld.dispose();
+		super.dispose();
+	}
 
 	@Override
 	public void onKeyDown(int keycode) {
-		
+    	System.out.println("onKeyDown:"+this);
+
 		if(keycode == Keys.SPACE && cube1.isTouching){
 			cube1.jump = true;
 		}
@@ -187,13 +195,13 @@ public class GameWindow extends PortableApplication{
 		platformLength = (int)(randomLength.nextDouble() * 1500) + 500;
 		globalPosition.x += holeWidth/2;  
 		globalPosition.y = 50; 
-		MapEntity1 mapPart = new MapEntity1(platformLength, holeWidth, globalPosition);
+		MapEntity1 mapPart = new MapEntity1(platformLength, holeWidth, globalPosition, sDeath);
 		globalPosition.x += (holeWidth/2 + platformLength); 
 		toDraw.add(mapPart); 
 		holes.add(mapPart.hole);
 		noMore3 = false; 
 		noMore2 = false; 
-}
+	}
 
 	protected void createMapEntity2(){
 		platformLength = (int)(randomLength.nextDouble() * 400) + 200;
@@ -204,20 +212,21 @@ public class GameWindow extends PortableApplication{
 		toDraw.add(mapPart); 
 		noMore2 = true; 
 		noMore3 = false;
-}
+	}
 
 	protected void createMapEntity3(){
 		platformLength = (int)(randomLength.nextDouble() * 1000) + 200;
 		globalPosition.x += holeWidth2/2; 
 		globalPosition.y = 50;
-		MapEntity3 mapPart = new MapEntity3(stepWidth, stepHeight, platformLength, holeWidth2, globalPosition); 
+		MapEntity3 mapPart = new MapEntity3(stepWidth, stepHeight, platformLength, holeWidth2, globalPosition, sDeath); 
 		globalPosition.x += platformLength/2;
 		toDraw.add(mapPart); 
 		noMore3 = true; 
 		noMore2 = false; 
-}
+	}
+	
 
-//	public boolean isInContactWithBox(){
+	//	public boolean isInContactWithBox(){
 //		Array<Contact> contactList = world.getContactList(); 
 //		for(int i = 0; i < contactList.size; i++){
 //			Contact contact = contactList.get(i);

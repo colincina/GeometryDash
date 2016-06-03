@@ -1,9 +1,12 @@
 import ch.hevs.gdx2d.components.screen_management.RenderingScreen;
 import ch.hevs.gdx2d.desktop.PortableApplication;
 import ch.hevs.gdx2d.lib.GdxGraphics;
+import ch.hevs.gdx2d.lib.ScreenManager;
 import ch.hevs.gdx2d.lib.physics.PhysicsWorld;
 import ch.hevs.gdx2d.lib.utils.Logger;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -35,16 +38,19 @@ public class GameOverWindow extends RenderingScreen{
 //		setTitle("Jumping Cube");
 
 		stage = new Stage();
-		Gdx.input.setInputProcessor(stage);// Make the stage consume events
+		InputMultiplexer multiplexer = new InputMultiplexer();
+		multiplexer.addProcessor(stage);
+		multiplexer.addProcessor(Gdx.input.getInputProcessor());
+		Gdx.input.setInputProcessor(multiplexer);
 
 		// Load the default skin (which can be configured in the JSON file)
 		skin = new Skin(Gdx.files.internal("data/ui/uiskin.json"));
 
-		newGameButton = new TextButton("Yolo", skin); // Use the initialized skin
+		newGameButton = new TextButton("Return to Menu", skin); // Use the initialized skin
 		newGameButton.setWidth(buttonWidth);
 		newGameButton.setHeight(buttonHeight);
 
-		quitGameButton = new TextButton("Start Game", skin); // Use the initialized skin
+		quitGameButton = new TextButton("Quit", skin); // Use the initialized skin
 		quitGameButton.setWidth(buttonWidth);
 		quitGameButton.setHeight(buttonHeight);
 
@@ -79,20 +85,18 @@ public class GameOverWindow extends RenderingScreen{
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
 				super.clicked(event, x, y);
-					
-					if(GameOverWindow.this.newGameButton.isChecked()){
-						state = "On"; 
-					}
-					if(!GameOverWindow.this.newGameButton.isChecked())
-					{
-						state = "Off"; 
-					}
-					stateCounter++; 
-					GameOverWindow.this.newGameButton.setText("Sound " + state);
+				ScreenHub.s.transitionTo(0, ScreenManager.TransactionType.SMOOTH); 
+			}
+		});
+	
+		quitGameButton.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				super.clicked(event, x, y);
+				System.exit(0); 
 			}
 		});
 	}
-	
 
 	public void onGraphicRender(GdxGraphics g) {
 		g.clear(Color.NAVY);

@@ -1,5 +1,8 @@
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.Vector;
+
+import ch.hevs.gdx2d.components.audio.SoundSample;
 import ch.hevs.gdx2d.components.bitmaps.BitmapImage;
 import ch.hevs.gdx2d.components.physics.primitives.PhysicsBox;
 import ch.hevs.gdx2d.components.physics.primitives.PhysicsStaticBox;
@@ -20,6 +23,7 @@ public class Cube extends PhysicsBox implements DrawableObject {
 	boolean isTouching = true;
 	boolean isHurt = false; 
 	boolean cubeDead = false; 
+	private boolean firstIteration = true; 
 	
 	float speed = 40f;
 	float impulse; 
@@ -33,12 +37,19 @@ public class Cube extends PhysicsBox implements DrawableObject {
 	long creationTime; 
 	
 	BitmapImage cubeSkin; 
+	
+	/*
+	 *  index 1 = birth, index 2 = death 
+	 *  Have to fix this to make it more readable. -> hashmaps + enum maybe
+	 */
+	Vector<SoundSample> sounds; 
+	
 	LinkedList<Particle> particles;
 	
-	public Cube(Vector2 position, int size, BitmapImage skin){
+	public Cube(Vector2 position, int size, BitmapImage skin, Vector<SoundSample> pSounds){
 		
 		super("Cube", position, size, size, 15f, 0, 0);
-		
+		this.sounds = pSounds;
 		this.size = size;
 		this.cubeSkin = skin; 
 		this.getBody().setFixedRotation(true); 
@@ -54,17 +65,23 @@ public class Cube extends PhysicsBox implements DrawableObject {
 		super.collision(theOtherObject, energy);
 		
 		if(theOtherObject.getClass() == PhysicsStaticBox.class){
+			sounds.get(1).play(); 
 			isTouching = true; 
 		}
 		if(theOtherObject.getClass() == Obstacle.class){
 			isHurt = true; 
-			cubeDead = true; 
+//			cubeDead = true; 
 		}
 		
 		System.out.println("Collided with " + theOtherObject);
 	}
 	
 	public void update(){
+		
+		if(firstIteration){
+			sounds.get(0).play();  
+			firstIteration = false;
+		}
 		
 		//linear x movement of the cube 
 		this.applyBodyForceToCenter(speed, 0, true); 
@@ -78,12 +95,14 @@ public class Cube extends PhysicsBox implements DrawableObject {
 		}
 		
 		if(specialJump && isTouching){
+			angle = Math.random()*Math.PI*2; 
 			specialJump = false; 
 			isTouching = false; 
 			pos = this.getBodyWorldCenter(); 
 			this.applyBodyLinearImpulse(specialImpulse, pos, true); 
 			Logger.log("jumped in a special way"); 
 		}
+		
 		//destroys the particles after a while
 		if(System.nanoTime() - creationTime > 1000000000){
 			
@@ -108,7 +127,7 @@ public class Cube extends PhysicsBox implements DrawableObject {
 	public void emitParticle(){
 		
 			
-			int impulsIntensity = 10;  
+			int impulsIntensity = 20;  
 			int angle = 0; 
 			long seed = (long)(Math.random() * 10000);
 			
