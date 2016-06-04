@@ -8,6 +8,7 @@ import ch.hevs.gdx2d.lib.ScreenManager;
 import ch.hevs.gdx2d.lib.utils.Logger;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -60,7 +61,7 @@ public class MenuWindow extends RenderingScreen{
 		controlPanelButton.setPosition(Gdx.graphics.getWidth() / 2 - buttonWidth / 2, (int) (Gdx.graphics.getHeight() * .6));
 		startGameButton.setPosition(Gdx.graphics.getWidth() / 2 - buttonWidth / 2, (int) (Gdx.graphics.getHeight() * .7));
 
-		textArea = new TextField("Enter your name...", skin);
+		textArea = new TextField("Enter seed here", skin);
 		textArea.setWidth(buttonWidth);
 		textArea.setPosition(Gdx.graphics.getWidth() / 2 - buttonWidth / 2, (int) (Gdx.graphics.getHeight() * .4));
 
@@ -103,7 +104,7 @@ public class MenuWindow extends RenderingScreen{
 	}
 	
 	public void onGraphicRender(GdxGraphics g) {
-		g.clear(); 
+		g.clear(Color.BLACK); 
 		g.drawBackground(bckgrnd, 0, 0); 
 		
 		// This is required for having the GUI work properly

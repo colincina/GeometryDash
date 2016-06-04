@@ -17,6 +17,7 @@ public class ScreenHub extends PortableApplication{
 	    public void onInit() {
 	        setTitle("Multiple screens and transitions");
 	        Logger.log("Press enter/space to show the next screen, 1/2/3 to transition to them");
+	        
 	        s.registerScreen(MenuWindow.class);
 	        s.registerScreen(GameWindow.class);
 	        s.registerScreen(GameOverWindow.class);

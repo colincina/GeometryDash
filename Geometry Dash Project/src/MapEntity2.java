@@ -10,8 +10,8 @@ public class MapEntity2 implements DrawableObject {
 	PhysicsStaticBox stepBox; 
 	int height; 
 	int length; 
-	public MapEntity2(int length, int height, Vector2 position) {
-		this.height = height;
+	public MapEntity2(int length, Vector2 position) {
+		this.height = Gsing.get().me2H;
 		this.length = length; 
 		stepBox = new PhysicsStaticBox("stepBox", position, length, height, 0); 
 	}

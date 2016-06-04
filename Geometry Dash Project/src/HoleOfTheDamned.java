@@ -10,14 +10,12 @@ import com.badlogic.gdx.math.Vector2;
 public class HoleOfTheDamned extends PhysicsStaticBox implements DrawableObject {
 	
 	boolean playerDiedInMe = false; 
-	float width;
-	float height;
-	SoundSample sDeath; 
+	SoundSample sDeath;
+	int width; 
 
-	public HoleOfTheDamned(String name, Vector2 position, int width, int height, SoundSample sound) {
-		super(name, position, width, height, 0);
-		this.width = width;
-		this.height = height;
+	public HoleOfTheDamned(String name, int width, Vector2 position, SoundSample sound) {
+		super(name, position, width, Gsing.get().holeHeight, 0);
+		this.width = width; 
 		sDeath = sound; 
 	}
 
@@ -27,7 +25,7 @@ public class HoleOfTheDamned extends PhysicsStaticBox implements DrawableObject 
 		
 		if (theOtherObject instanceof Cube) {
 			Cube cube1 = (Cube) theOtherObject;
-			cube1.cubeDead = true; 
+//			cube1.cubeDead = true; 
 			playerDiedInMe = true; 
 			sDeath.play(); 
 			System.out.println(theOtherObject.name + " Collided with " + this.name);
@@ -36,6 +34,6 @@ public class HoleOfTheDamned extends PhysicsStaticBox implements DrawableObject 
 
 	public void draw(GdxGraphics g) {
 		Vector2 pos = this.getBodyWorldCenter();
-		g.drawFilledRectangle(pos.x, pos.y, width, height, 0, Color.RED);
+		g.drawFilledRectangle(pos.x, pos.y, width, Gsing.get().holeHeight, 0, Color.RED);
 	}
 }

@@ -15,17 +15,17 @@ public class MapEntity4 implements DrawableObject {
 	int highYPoint = 800; 
 	int middleYPoint = 600; 
 	int lowYPoint = 400;
-	
+	int holeWidth = Gsing.get().holeWidthme4; 
 	SoundSample death; 
 	
-	public MapEntity4(String name, Vector2 position, int length, int boxDim, SoundSample sound) {
+	public MapEntity4(String name, Vector2 position, int boxDim, SoundSample sound) {
 		
 		this.pos = position;
 		this.death = sound; 
-		hole = new HoleOfTheDamned("Hole", pos, length, 25, death); 
+		hole = new HoleOfTheDamned("Hole", holeWidth, pos, death); 
 		hole.enableCollisionListener(); 
 		hole.setSensor(true); 
-		pos.x -= length/2 - 200; 
+		pos.x -= holeWidth/2 - 200; 
 			
 				for(int i = 0; i < 10; i++){
 				pos.y = highYPoint; 

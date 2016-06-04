@@ -25,17 +25,13 @@ public class Cube extends PhysicsBox implements DrawableObject {
 	boolean cubeDead = false; 
 	private boolean firstIteration = true; 
 	
-	float speed = 40f;
-	float impulse; 
+	float torque;
 	
-	int size; 
-	int particleamount = 50;
+	int endRotFrameCnt;
+	int airTimeFrameCnt; 
 	double angle = Math.PI/4; 
 	Vector2 specialImpulse = new Vector2((float)(100*Math.cos(angle)), (float)(100*Math.sin(angle)));
-	
-	
 	long creationTime; 
-	
 	BitmapImage cubeSkin; 
 	
 	/*
@@ -46,16 +42,16 @@ public class Cube extends PhysicsBox implements DrawableObject {
 	
 	LinkedList<Particle> particles;
 	
-	public Cube(Vector2 position, int size, BitmapImage skin, Vector<SoundSample> pSounds){
+	public Cube(Vector2 position, BitmapImage skin, Vector<SoundSample> pSounds){
 		
-		super("Cube", position, size, size, 15f, 0, 0);
+		super("Cube", position, Gsing.get().cSize, Gsing.get().cSize, 15f, 0, 0);
 		this.sounds = pSounds;
-		this.size = size;
 		this.cubeSkin = skin; 
 		this.getBody().setFixedRotation(true); 
 		this.setCollisionGroup(-1); 
-		this.getBody().getFixtureList().get(0).setRestitution(0);
-		impulse = this.getBodyMass()*15; 
+//		this.getBody().getFixtureList().get(0).setFriction(0);
+		Gsing.get().cImpulse = this.getBodyMass()* 15; 
+		torque = this.getBodyMass() * 5; 
 		particles = new LinkedList<Particle>(); 
 	}
 	
@@ -67,10 +63,11 @@ public class Cube extends PhysicsBox implements DrawableObject {
 		if(theOtherObject.getClass() == PhysicsStaticBox.class){
 			sounds.get(1).play(); 
 			isTouching = true; 
+			endRotFrameCnt = 0;
+			airTimeFrameCnt = 0; 
 		}
 		if(theOtherObject.getClass() == Obstacle.class){
 			isHurt = true; 
-//			cubeDead = true; 
 		}
 		
 		System.out.println("Collided with " + theOtherObject);
@@ -83,15 +80,28 @@ public class Cube extends PhysicsBox implements DrawableObject {
 			firstIteration = false;
 		}
 		
+		if(endRotFrameCnt >= 30)
+		{
+			this.getBody().setFixedRotation(true); 
+		}
+		
+//		if(airTimeFrameCnt >= 6){
+//			this.applyBodyTorque(-1000f, true);
+//		}
+		
 		//linear x movement of the cube 
-		this.applyBodyForceToCenter(speed, 0, true); 
+		this.applyBodyForceToCenter(Gsing.get().cSpeed, 0, true); 
 		this.setBodyLinearDamping(0.4f); 
 		
 		if(jump && isTouching){
 			jump = false; 
 			isTouching = false; 
 			pos = this.getBodyWorldCenter(); 
-			this.applyBodyLinearImpulse(new Vector2(0, impulse), pos, true); 
+			pos.x -= Gsing.get().cSize/2;
+			pos.y -= Gsing.get().cSize/2; 
+//			this.getBody().setFixedRotation(false); 
+			this.applyBodyLinearImpulse(new Vector2(0, Gsing.get().cImpulse), pos, true);
+			airTimeFrameCnt = 0; 
 		}
 		
 		if(specialJump && isTouching){
@@ -104,12 +114,16 @@ public class Cube extends PhysicsBox implements DrawableObject {
 		}
 		
 		//destroys the particles after a while
-		if(System.nanoTime() - creationTime > 1000000000){
+		if(System.nanoTime() - creationTime > Long.MAX_VALUE){
 			
 			while(!particles.isEmpty()){
 				Particle p = particles.poll();
 				p.destroy(); 
 			}
+		}
+		endRotFrameCnt++; 
+		if(!isTouching){
+			airTimeFrameCnt++; 
 		}
 	}
 	
@@ -117,7 +131,7 @@ public class Cube extends PhysicsBox implements DrawableObject {
 		
 		update(); 
 		Vector2 centerPos = this.getBodyWorldCenter(); 
-			g.drawTransformedPicture(centerPos.x, centerPos.y, 0, size/2, size/2, cubeSkin);
+			g.drawTransformedPicture(centerPos.x, centerPos.y, this.getBodyAngleDeg(), Gsing.get().cSize/2, Gsing.get().cSize/2, cubeSkin);
 		
 		for (Particle particle : particles) {
 			particle.draw(g); 
@@ -125,9 +139,7 @@ public class Cube extends PhysicsBox implements DrawableObject {
 	}
 
 	public void emitParticle(){
-		
 			
-			int impulsIntensity = 20;  
 			int angle = 0; 
 			long seed = (long)(Math.random() * 10000);
 			
@@ -137,16 +149,16 @@ public class Cube extends PhysicsBox implements DrawableObject {
 			isHurt = false; 
 			creationTime = System.nanoTime();
 			
-			for(int i = 0; i < particleamount; i++){
+			for(int i = 0; i < Gsing.get().cParticleAmount; i++){
 				int size = (int)(r.nextDouble()*20) + 5; 
 				Particle aParticle = new Particle("Particle" , Cube.this.getBodyWorldCenter(), size, (long)(Math.random()*10000));
 				aParticle.setCollisionGroup(-1);
 				particles.add(aParticle); 
 				Vector2 pos = this.getBodyWorldCenter();
-				impulse.x = (float) Math.sin(angle)*impulsIntensity; 
-				impulse.y = (float) Math.cos(angle)*impulsIntensity; 
+				impulse.x = (float) Math.sin(angle)*Gsing.get().pImpulse; 
+				impulse.y = (float) Math.cos(angle)*Gsing.get().pImpulse; 
 				aParticle.applyBodyLinearImpulse(impulse, pos, true); 
-				angle += 180/particleamount;
+				angle += 180/Gsing.get().cParticleAmount;
 		}
 }
 }

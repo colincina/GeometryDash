@@ -1,7 +1,11 @@
+import java.util.Vector;
+
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 
 import ch.hevs.gdx2d.components.audio.SoundSample;
+import ch.hevs.gdx2d.components.bitmaps.Spritesheet;
 import ch.hevs.gdx2d.components.physics.primitives.PhysicsStaticBox;
 import ch.hevs.gdx2d.lib.GdxGraphics;
 import ch.hevs.gdx2d.lib.interfaces.DrawableObject;
@@ -21,97 +25,140 @@ public class MapEntity3 implements DrawableObject{
 	HoleOfTheDamned hole2;
 	HoleOfTheDamned hole3;
 	
+	boolean bigSize = true; 
+	
 	int platformLength; 
-	int stepWidth; 
-	int stepHeight; 
+	int stepSize;
 	int holeWidth; 
 	
-	boolean bigSize = true; 
-
-	SoundSample death; 
+	int currentFrame = 0;
+	int nFrames = 8; 
+	int dir = 1; 
 	
-	public MapEntity3(int sWidth, int sHeight, int platformLength, int hWidth, Vector2 firstStepPosition, SoundSample sound) {
+	float dt = 0;
+	float frameTime = 0.09f; 
+	
+	Vector<Spritesheet> steps; 
+	
+
+	Vector<SoundSample> sounds; 
+	
+	public MapEntity3(int platformLength, Vector2 firstStepPosition, Vector<SoundSample> sounds, Vector<Spritesheet> steps) {
 		
 		this.platformLength = platformLength; 
-		this.stepWidth = sWidth; 
-		this.stepHeight = sHeight; 
-		this.holeWidth = hWidth; 
+		this.stepSize = Gsing.get().me3StepSize; 
+		this.holeWidth = Gsing.get().holeWidthme3; 
 		this.pos = firstStepPosition; 
-		this.death = sound; 
+		this.sounds = sounds; 
+		this.steps = steps; 
+//		sounds.get(1).loop(); 
+//		sounds.get(1).setVolume(1);
+//		sounds.get(1).setPitch(0.9f); 
+		
 		if(Math.random()*2 > 1){
-			this.stepWidth = stepWidth/2; 
-			this.stepHeight = stepHeight/2; 
+			this.stepSize = stepSize/2; 
 			buildSmallEntity();
+			bigSize = false; 
 		}
 		else{
+			bigSize = true;
 			buildBigEntity(); 
 		}
 	}
 
 	public void buildBigEntity(){
-		hole1 = new HoleOfTheDamned("Hole 1", pos, holeWidth, 25, death);
+		
+		hole1 = new HoleOfTheDamned("Hole 1", holeWidth, pos, sounds.get(0));
 		hole1.setSensor(true); 
 		hole1.enableCollisionListener();
-		pos.x += stepWidth/2 + holeWidth/2; 
-		pos.y += stepHeight/2; 
+		pos.x += stepSize/2 + holeWidth/2; 
+		pos.y += stepSize/2; 
 		
-		step1 = new PhysicsStaticBox("Box 1", pos, stepWidth, stepHeight);
-		pos.x += stepWidth/2 + holeWidth/2; 
+		step1 = new PhysicsStaticBox("Box 1", pos, stepSize, stepSize);
+		pos.x += stepSize/2 + holeWidth/2; 
 		
-		hole2 = new HoleOfTheDamned("Hole 2", pos, holeWidth, 25, death);
+		hole2 = new HoleOfTheDamned("Hole 2", holeWidth, pos, sounds.get(0));
 		hole2.setSensor(true); 
 		hole2.enableCollisionListener();
-		pos.x += stepWidth/2 + holeWidth/2; 
-		pos.y += stepHeight/2; 
+		pos.x += stepSize/2 + holeWidth/2; 
+		pos.y += stepSize/2; 
 		
-		step2 = new PhysicsStaticBox("Box 2", pos, stepWidth, stepHeight);
-		pos.x += stepWidth/2 + holeWidth/2; 
+		step2 = new PhysicsStaticBox("Box 2", pos, stepSize, stepSize);
+		pos.x += stepSize/2 + holeWidth/2; 
 		
-		hole3 = new HoleOfTheDamned("Hole 3", pos, holeWidth, 25, death);
+		hole3 = new HoleOfTheDamned("Hole 3", holeWidth, pos,  sounds.get(0));
 		hole3.setSensor(true); 
 		hole3.enableCollisionListener();
 		pos.x += platformLength/2 + holeWidth/2; 
-		pos.y += stepHeight; 
+		pos.y += stepSize; 
 		
-		platform = new PhysicsStaticBox("platform", pos, platformLength, stepHeight/2 );
+		platform = new PhysicsStaticBox("platform", pos, platformLength, stepSize/2 );
 	}
 	
 	public void buildSmallEntity(){
-		hole1 = new HoleOfTheDamned("Hole 1", pos, holeWidth, 25, death);
+		
+		
+		hole1 = new HoleOfTheDamned("Hole 1", holeWidth, pos, sounds.get(0));
 		hole1.setSensor(true); 
 		hole1.enableCollisionListener();
-		pos.x += stepWidth/2 + holeWidth/2; 
-		pos.y += stepHeight*2; 
+		pos.x += stepSize/2 + holeWidth/2; 
+		pos.y += stepSize*2; 
 		
-		step1 = new PhysicsStaticBox("Box 1", pos, stepWidth, stepHeight);
-		pos.x += stepWidth/2 + holeWidth/2; 
+		step1 = new PhysicsStaticBox("Box 1", pos, stepSize, stepSize);
+		pos.x += stepSize/2 + holeWidth/2; 
 		
-		hole2 = new HoleOfTheDamned("Hole 2", pos, holeWidth, 25, death);
+		hole2 = new HoleOfTheDamned("Hole 2", holeWidth, pos, sounds.get(0));
 		hole2.setSensor(true); 
 		hole2.enableCollisionListener();
-		pos.x += stepWidth/2 + holeWidth/2; 
-		pos.y += stepHeight*2; 
+		pos.x += stepSize/2 + holeWidth/2; 
+		pos.y += stepSize*2; 
 		
-		step2 = new PhysicsStaticBox("Box 2", pos, stepWidth, stepHeight);
-		pos.x += stepWidth/2 + holeWidth/2; 
+		step2 = new PhysicsStaticBox("Box 2", pos, stepSize, stepSize);
+		pos.x += stepSize/2 + holeWidth/2; 
 		
-		hole3 = new HoleOfTheDamned("Hole 3", pos, holeWidth, 25, death);
+		hole3 = new HoleOfTheDamned("Hole 3", holeWidth, pos, sounds.get(0));
 		hole3.setSensor(true); 
 		hole3.enableCollisionListener();
 		pos.x += platformLength/2 + holeWidth/2; 
-		pos.y += stepHeight*2; 
+		pos.y += stepSize*2; 
 		
-		platform = new PhysicsStaticBox("platform", pos, platformLength, stepHeight/2 );
+		platform = new PhysicsStaticBox("platform", pos, platformLength, stepSize/2 );
 	}
+	
+	public void update(GdxGraphics g){
+		
+		dt += Gdx.graphics.getDeltaTime();
+
+		// Do we have to display the next frame
+		if (dt > frameTime) {
+			dt = 0;
+			
+			currentFrame = (currentFrame + dir) % nFrames;
+			
+			if(currentFrame == 7 || currentFrame == 0){
+				dir *= -1; 
+			}
+		}
+	}
+	
 	public void draw(GdxGraphics g) {
 		
+		update(g);
 		Vector2 drawStep1 = new Vector2(step1.getBodyWorldCenter());
 		Vector2 drawStep2 = new Vector2(step2.getBodyWorldCenter());
 		Vector2 drawPlatform = new Vector2(platform.getBodyWorldCenter());
 		
-		g.drawFilledRectangle(drawStep1.x, drawStep1.y, stepWidth, stepHeight, 0, Color.BLACK); 
-		g.drawFilledRectangle(drawStep2.x, drawStep2.y, stepWidth, stepHeight, 0, Color.BLACK); 
-		g.drawFilledRectangle(drawPlatform.x, drawPlatform.y, platformLength, stepHeight/2, 0, Color.BLACK); 
+		if(bigSize){
+			g.draw(steps.get(0).sprites[0][currentFrame], drawStep1.x - (stepSize/2 + 25) , drawStep1.y - (stepSize/2 + 25));
+			g.draw(steps.get(0).sprites[0][currentFrame], drawStep2.x - (stepSize/2 + 25), drawStep2.y - (stepSize/2 + 25)); 
+		}
+		
+		if(!bigSize){
+			g.draw(steps.get(1).sprites[0][currentFrame], drawStep1.x - (stepSize/2 + 12) , drawStep1.y - (stepSize/2 + 12));
+			g.draw(steps.get(1).sprites[0][currentFrame], drawStep2.x - (stepSize/2 + 12), drawStep2.y - (stepSize/2 + 12)); 
+		}
+		
+		g.drawFilledRectangle(drawPlatform.x, drawPlatform.y, platformLength, stepSize/2, 0, Color.BLACK); 
 		hole1.draw(g); 
 		hole2.draw(g); 
 		hole3.draw(g); 

@@ -13,16 +13,14 @@ public class MapEntity1 implements DrawableObject {
 	PhysicsStaticBox platform; 
 	Vector2 pos = new Vector2(0, 50); 
 	int platformLength;
-	int holeWidth; 
 
-	public MapEntity1(int platformLength, int holeWidth, Vector2 holePosition, SoundSample death) {
+	public MapEntity1(int platformLength, Vector2 holePosition, SoundSample death) {
 		
 		this.platformLength = platformLength; 
-		this.holeWidth = holeWidth; 
-		hole = new HoleOfTheDamned("hole", holePosition, holeWidth, 25, death); 
+		hole = new HoleOfTheDamned("hole",Gsing.get().holeWidthme1, holePosition, death); 
 		hole.setSensor(true); 
 		hole.enableCollisionListener();
-		pos.x += (holePosition.x + holeWidth/2 + platformLength/2); 
+		pos.x += (holePosition.x + Gsing.get().holeWidthme1/2 + platformLength/2); 
 		platform = new PhysicsStaticBox("platform", pos, platformLength, 100);
 		addObstacles(); 
 	}
