@@ -4,38 +4,37 @@ import ch.hevs.gdx2d.components.physics.primitives.PhysicsStaticBox;
 import ch.hevs.gdx2d.lib.GdxGraphics;
 import ch.hevs.gdx2d.lib.interfaces.DrawableObject;
 import ch.hevs.gdx2d.lib.physics.AbstractPhysicsObject;
-import ch.hevs.gdx2d.lib.utils.Logger;
 
 
-public class DoubleJumpBox extends PhysicsStaticBox implements DrawableObject {
+public class Platform extends PhysicsStaticBox implements DrawableObject{
 
-	float width; 
-	float height; 
+	int width; 
+	int height; 
+	int lHeight = Gsing.get().lightHeight; 
+	boolean drawSuperFancyLine = false; 
 	
-	public DoubleJumpBox(Vector2 position, float width, float height, float angle) {
-		super(null, position, width, height, angle);
+	public Platform(Vector2 position, int width, int height) {
+		super(null, position, width, height, 0);
 		this.width = width; 
 		this.height = height; 
-		this.setSensor(true); 
-		this.enableCollisionListener(); 
 	}
 
 	@Override
 	public void collision(AbstractPhysicsObject theOtherObject, float energy) {
 		super.collision(theOtherObject, energy);
-		
-		if (theOtherObject instanceof Cube) {
-			((Cube) theOtherObject).isTouching = true;
-			((Cube) theOtherObject).specialJump = true;
-			
+		if (theOtherObject.getClass() == Cube.class) {
+			drawSuperFancyLine = true; 
 		}
 	}
-	
 	
 	public void draw(GdxGraphics g) {
 		
 		Vector2 pos = this.getBodyWorldCenter(); 
-		g.drawFilledRectangle(pos.x, pos.y, width, height, 0, Color.YELLOW);
+		g.drawFilledRectangle(pos.x, pos.y, width, height, 0, Color.BLACK); 
+		
+		if(drawSuperFancyLine){
+			g.drawFilledRectangle(pos.x, pos.y + height/2 - 20, this.width, this.lHeight, 0, Color.GREEN); 
+		}
+		
 	}
-
 }

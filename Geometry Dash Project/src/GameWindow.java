@@ -1,8 +1,8 @@
+import java.util.Iterator;
 import java.util.Random;
 import java.util.Vector;
 
 import ch.hevs.gdx2d.components.audio.SoundSample;
-import ch.hevs.gdx2d.components.bitmaps.BitmapImage;
 import ch.hevs.gdx2d.components.bitmaps.Spritesheet;
 import ch.hevs.gdx2d.components.screen_management.RenderingScreen;
 import ch.hevs.gdx2d.desktop.physics.DebugRenderer;
@@ -11,14 +11,15 @@ import ch.hevs.gdx2d.lib.ScreenManager;
 import ch.hevs.gdx2d.lib.interfaces.DrawableObject;
 import ch.hevs.gdx2d.lib.physics.PhysicsWorld;
 import ch.hevs.gdx2d.lib.utils.Logger;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Contact;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.WorldManifold;
-import com.sun.xml.internal.org.jvnet.fastinfoset.stax.LowLevelFastInfosetStreamWriter;
+import com.badlogic.gdx.utils.Array;
 
 
 public class GameWindow extends RenderingScreen{
@@ -31,7 +32,9 @@ public class GameWindow extends RenderingScreen{
 	Vector<HoleOfTheDamned> holes = new Vector<HoleOfTheDamned>(); 
 	Vector<SoundSample> cubeSounds = new Vector<SoundSample>();  
 	Vector<SoundSample> entity3Sounds = new Vector<SoundSample>(); 
+	
 	Vector<Spritesheet> entity3Sprites = new Vector<Spritesheet>(); 
+	Spritesheet cubeBirth;
 	
 	
 	Vector2 globalPosition = new Vector2(1000, 50); 
@@ -40,9 +43,14 @@ public class GameWindow extends RenderingScreen{
 	DoubleJumpBox d; 
 	DebugRenderer debugRenderer;
 	
+	public int CREATION_RATE = 1;
+	public final int MAX_AGE = 10;
 	private int platformLength = 0; 
 	
 	private float xPos = 0; 
+	private float zoom = 0.5f; 
+	
+	long seed; 
 
 	private boolean debugDraw; 
 	private boolean noMore2 = false; 
@@ -50,31 +58,42 @@ public class GameWindow extends RenderingScreen{
 	
 	Spritesheet bStep, sStep; 
 	
-	Random randomLength; 
+	Random random; 
 	
 	SoundSample sBirth, sDeath, sImpact, sLowPulse, sGameMusic; 
 	
 	
 	public void onInit() {
 		
-		long seed = (long)(Math.random()*10000); 
-		randomLength = new Random(seed); 
-		BitmapImage cubeSkin = new BitmapImage("data/images/qr3.png");
+		if(Gsing.get().seedBeingUsed){
+			seed = Gsing.get().enteredSeed; 
+		}
+		
+		else{
+			Gsing.get().mapGenSeed = (long)(Math.random()*10000); 
+			seed = Gsing.get().mapGenSeed; 
+		}
+		
+		random = new Random(seed); 
 		
 		sBirth = new SoundSample("data/sounds/birth.mp3");
 		sDeath = new SoundSample("data/sounds/death.mp3");
-		sDeath.setVolume(0.2f); 
 		sImpact= new SoundSample("data/sounds/impact.mp3");
 		sLowPulse = new SoundSample("data/sounds/lowpulse.wav");
 		sGameMusic = new SoundSample("data/sounds/Space Travel.mp3"); 
+		
+		sDeath.setVolume(0.2f); 
 		sImpact.setVolume(0.2f); 
+		
 		cubeSounds.add(sBirth); 
 		cubeSounds.add(sImpact); 
 		entity3Sounds.add(sDeath); 
 		entity3Sounds.add(sLowPulse);
 		
+		cubeBirth = new Spritesheet("data/Spritesheets/cubeBirthSpriteSheet.png", 170, 170);
 		bStep = new Spritesheet("data/Spritesheets/bigME3SpriteSheet.png", 300, 300); 
 		sStep = new Spritesheet("data/Spritesheets/smallME3SpriteSheet.png", 150, 150); 
+		
 		entity3Sprites.add(bStep); 
 		entity3Sprites.add(sStep); 
 		
@@ -84,40 +103,78 @@ public class GameWindow extends RenderingScreen{
 //		toDraw.add(new Background()); 
 		
 		//add the cube
-		cube1 = new Cube(new Vector2(100, 1000), cubeSkin, cubeSounds); 
+		cube1 = new Cube(new Vector2(100, 600), cubeBirth, cubeSounds); 
 		toDraw.add(cube1); 
 		Logger.log("Cube has been created");
 		
 		//start platform added 
-		toDraw.add(new StartPlatform(1000)); 
-//		globalPosition.x += 1000; 
+		toDraw.add(new StartPlatform(2000)); 
+		globalPosition.x += 1000; 
 //		globalPosition.y = 50; 
-//		toDraw.add(new MapEntity4("Air Time", globalPosition, 2000, 20, sDeath)); 
+//		toDraw.add(new MapEntity4("Air Time", globalPosition, 2000, sDeath)); 
 		
+//		createMapEntity4(); 
 		for(int i = 0; i < 50; i++){
-		
-			if((int)(randomLength.nextDouble()*10 + 1) < 4){
+			
+			if((int)(random.nextDouble()*10 + 1) < 4){
 				createMapEntity1();
 			}
 			
-			else if ((int)(randomLength.nextDouble()*10 + 1) >= 4 && (int)(randomLength.nextDouble()*10 + 1) < 8 && !noMore2){
+			else if ((int)(random.nextDouble()*10 + 1) >= 4 && (int)(random.nextDouble()*10 + 1) < 8 && !noMore2){
 				 createMapEntity2(); 
 			}
 			
-			else if ((int)(randomLength.nextDouble()*10 + 1) >= 8 && !noMore3){
-				createMapEntity3(); 
+			else if ((int)(random.nextDouble()*10 + 1) >= 8 && !noMore3){
+				
+				createMapEntity3(random.nextBoolean()); 
 			}
 		}
 		debugRenderer = new DebugRenderer();
+		sGameMusic.loop();
 	}
 	
 	public void onGraphicRender(GdxGraphics g) {
 		
 		g.clear(); 
 		g.setBackgroundColor(Color.WHITE); 
+		
+		/*
+		 * particle trail 
+		 */
+//		Array<Body> bodies = new Array<Body>();
+//		world.getBodies(bodies);
+//		Iterator<Body> it = bodies.iterator();
+//
+//		while (it.hasNext()) {
+//			Body p = it.next();
+//			if (p.getUserData() instanceof TrailParticle) {
+//				TrailParticle particle = (TrailParticle) p.getUserData();
+//				particle.step();
+//				toDraw.add(particle); 
+//
+//				if (particle.shouldbeDestroyed()) {
+//					toDraw.remove(toDraw.indexOf(particle)); 
+//					particle.destroy();
+//				}
+//			}
+//		}
+		
 		PhysicsWorld.updatePhysics(Gdx.graphics.getDeltaTime());
 		holeCollisionNotifier(holes); 
-//		cube1.isTouching = isInContactWithBox(); 
+		//display some text to see if the cube is grounded 
+		if(cube1.isTouching)
+		{
+			g.setColor(Color.BLACK); 
+			g.drawString(cube1.getBodyPosition().x, cube1.getBodyPosition().y + 100, "Cube grounded"); 
+//			createParticles();
+		}
+		
+		else if (!cube1.isTouching)
+		{
+			g.setColor(Color.BLACK); 
+			g.drawString(cube1.getBodyPosition().x, cube1.getBodyPosition().y + 100, "Cube not grounded"); 
+		}
+		
 		moveCamera(g, cube1); 
 		debugRenderer.render(world, g.getCamera().combined);
 
@@ -127,17 +184,6 @@ public class GameWindow extends RenderingScreen{
 			obj.draw(g); 
 		}
 		
-		//display some text to see if the cube is grounded 
-		if(cube1.isTouching)
-		{
-			g.setColor(Color.BLACK); 
-			g.drawString(cube1.getBodyPosition().x, cube1.getBodyPosition().y + 100, "Cube grounded"); 
-		}
-		else if (!cube1.isTouching)
-		{
-			g.setColor(Color.BLACK); 
-			g.drawString(cube1.getBodyPosition().x, cube1.getBodyPosition().y + 100, "Cube not grounded"); 
-		}
 		
 		//check if the cube has encountered an obstacle
 		if(cube1.isHurt)
@@ -189,6 +235,17 @@ public class GameWindow extends RenderingScreen{
 	
 	public void moveCamera(GdxGraphics g, Cube cube)
 	{
+//		if(birthAnim){
+//			g.getCamera().zoom = zoom;
+//			Vector2 pos = cube.getBodyWorldCenter(); 
+//			g.moveCamera(pos.x + g.getScreenWidth()/2, pos.y + g.getScreenHeight()/2); 
+//			if(zoom >= 1){
+//				birthAnim = false; 
+//				g.getCamera().zoom = 1f; 
+//			}
+//			zoom += 0.005; 
+//		}
+		
 		float h = 3*(g.getScreenHeight()/4); 
 		float y = cube.getBodyWorldCenter().y ;
 		
@@ -205,7 +262,7 @@ public class GameWindow extends RenderingScreen{
 	}
 	
 	protected void createMapEntity1(){
-		platformLength = (int)(randomLength.nextDouble() * 1500) + 500;
+		platformLength = (int)(random.nextDouble() * 1500) + 500;
 		globalPosition.x += Gsing.get().holeWidthme1/2;  
 		globalPosition.y = 50; 
 		MapEntity1 mapPart = new MapEntity1(platformLength, globalPosition, sDeath); 
@@ -217,7 +274,7 @@ public class GameWindow extends RenderingScreen{
 	}
 
 	protected void createMapEntity2(){
-		platformLength = (int)(randomLength.nextDouble() * 400) + 200;
+		platformLength = (int)(random.nextDouble() * 400) + 200;
 		globalPosition.x += platformLength/2; 
 		globalPosition.y = 50; 
 		MapEntity2 mapPart = new MapEntity2(platformLength, globalPosition); 
@@ -227,9 +284,14 @@ public class GameWindow extends RenderingScreen{
 		noMore3 = false;
 	}
 
-	protected void createMapEntity3(){
-		platformLength = (int)(randomLength.nextDouble() * 1000) + 200;
-		globalPosition.x += Gsing.get().holeWidthme3/2; 
+	protected void createMapEntity3(boolean bigSize){
+		platformLength = (int)(random.nextDouble() * 1000) + 200;
+		if(bigSize){
+			globalPosition.x += Gsing.get().holeWidthme3/2; 
+		}
+		else{
+			globalPosition.x += (Gsing.get().holeWidthme3*1.5)/2; 
+		}
 		globalPosition.y = 50;
 		MapEntity3 mapPart = new MapEntity3(platformLength, globalPosition, entity3Sounds, entity3Sprites); 
 		globalPosition.x += platformLength/2;
@@ -238,26 +300,26 @@ public class GameWindow extends RenderingScreen{
 		noMore2 = false; 
 	}
 	
+	protected void createMapEntity4(){
+		platformLength = (int)(random.nextDouble() * 5000) + 3000;
+		globalPosition.x += platformLength/2; 
+		MapEntity4 mapPart = new MapEntity4(platformLength, globalPosition, sImpact, random); 
+		toDraw.add(mapPart);
+		globalPosition.x += platformLength/2; 
+	}
+	
+	void createParticles() {
+		for (int i = 0; i < CREATION_RATE; i++) {
+			Vector2 position = new Vector2(cube1.getBodyWorldCenter()); 
+			TrailParticle c = new TrailParticle(position, 10, MAX_AGE + random.nextInt(MAX_AGE / 2));
 
-	//	public boolean isInContactWithBox(){
-//		Array<Contact> contactList = world.getContactList(); 
-//		for(int i = 0; i < contactList.size; i++){
-//			Contact contact = contactList.get(i);
-//			if(contact.isTouching() && (contact.getFixtureA() == cube1.getBodyFixtureList().first()||
-//					contact.getFixtureB() == cube1.getBodyFixtureList().first())) 
-//			{				
-//				manifold = contact.getWorldManifold();
-//				for(int j = 0; j < manifold.getNumberOfContactPoints(); j++) {
-//				}
-//				return true; 
-//			}
-//			else
-//			{
-//				return false;
-//			}
-//		}
-//			return false; 
-//	}
+			// Apply a vertical force with some random horizontal component
+			Vector2 force = new Vector2();
+			force.x = random.nextFloat() * -0.00095f;
+			force.y = random.nextFloat() * 0.00095f * (random.nextBoolean() == true ? -1 : 1);
+			c.applyBodyLinearImpulse(force, position, true);
+		}
+	}
 
 	public static void main(String args[]){
 		new GameWindow(); 

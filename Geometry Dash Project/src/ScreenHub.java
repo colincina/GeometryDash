@@ -2,7 +2,6 @@ import ch.hevs.gdx2d.desktop.PortableApplication;
 import ch.hevs.gdx2d.lib.GdxGraphics;
 import ch.hevs.gdx2d.lib.ScreenManager;
 import ch.hevs.gdx2d.lib.utils.Logger;
-
 import com.badlogic.gdx.InputMultiplexer;
 
 
@@ -15,8 +14,7 @@ public class ScreenHub extends PortableApplication{
 		}
 	
 	    public void onInit() {
-	        setTitle("Multiple screens and transitions");
-	        Logger.log("Press enter/space to show the next screen, 1/2/3 to transition to them");
+	        setTitle("G E O M E T R Y || D A S H");
 	        
 	        s.registerScreen(MenuWindow.class);
 	        s.registerScreen(GameWindow.class);
@@ -33,7 +31,6 @@ public class ScreenHub extends PortableApplication{
 	        s.getActiveScreen().onClick(x, y, button);
 	    }
 	 
-	  
 	    public void onKeyDown(int keycode) {
 	    	// Delegate the onKeyDown to the child class
 	    	s.getActiveScreen().onKeyDown(keycode);

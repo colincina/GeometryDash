@@ -6,12 +6,13 @@ import ch.hevs.gdx2d.lib.physics.AbstractPhysicsObject;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 
-public class Obstacle extends PhysicsStaticBox implements DrawableObject {
+public class VarObstacle extends PhysicsStaticBox implements DrawableObject {
 
 	int width; 
 	int height; 
-	boolean iKilledTheCube = false; 
-	public Obstacle(int width, int height, Vector2 position) {
+//	boolean iKilledTheCube = false; 
+	
+	public VarObstacle(int width, int height, Vector2 position) {
 		super("Obstacle 1", position, width, height); 
 		this.width = width; 
 		this.height = height;
@@ -20,9 +21,12 @@ public class Obstacle extends PhysicsStaticBox implements DrawableObject {
 
 	@Override
 	public void collision(AbstractPhysicsObject theOtherObject, float energy) {
+		
 		super.collision(theOtherObject, energy);
-		this.iKilledTheCube = true;
-		System.out.println(theOtherObject.name + " Collided with " + this.name);
+		if (theOtherObject instanceof Cube) {
+			Cube cube = (Cube) theOtherObject;
+			System.out.println(theOtherObject.name + " Collided with " + cube.name);
+		}
 	}
 	
 	public void draw(GdxGraphics g) {

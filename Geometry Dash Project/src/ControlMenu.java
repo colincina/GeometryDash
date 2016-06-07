@@ -26,7 +26,6 @@ public class ControlMenu extends RenderingScreen{
 	Stage stage;
 	TextButton soundOnOffButton, backToMenuButton;
 	Slider fxVolSlider, musicVolSlider; 
-	TextField textArea;
 	int stateCounter = 0; 
 	String state; 
 	SoundSample loop; 
@@ -73,19 +72,6 @@ public class ControlMenu extends RenderingScreen{
 		musicVolSlider.setPosition(Gdx.graphics.getWidth() / 2 - buttonWidth / 2, (int)(Gdx.graphics.getHeight()/2));
 		fxVolSlider.setPosition(Gdx.graphics.getWidth() / 2 - buttonWidth / 2, (int)(Gdx.graphics.getHeight()/2) - 50);
 
-		textArea = new TextField("Enter your name...", skin);
-		textArea.setWidth(buttonWidth);
-		textArea.setPosition(Gdx.graphics.getWidth() / 2 - buttonWidth / 2, (int) (Gdx.graphics.getHeight() * .4));
-
-		textArea.setTextFieldListener(new TextFieldListener() {
-			public void keyTyped(TextField textField, char key) {
-				textArea.setSelection(0, 0);
-
-				// When you press 'enter', do something
-				if (key == 13)
-					Logger.log("You have typed " + textArea.getText());
-			}
-		});
 		
 		/**
 		 * Adds the buttons to the stage
@@ -94,7 +80,6 @@ public class ControlMenu extends RenderingScreen{
 		stage.addActor(backToMenuButton);
 		stage.addActor(fxVolSlider); 
 		stage.addActor(musicVolSlider); 
-		stage.addActor(textArea);
 
 		/**
 		 * Register listener
@@ -130,7 +115,7 @@ public class ControlMenu extends RenderingScreen{
 			
 				@Override
 				public void changed(ChangeEvent e, Actor arg1) {
-				ParamSingleton.getinstance().musicLevel = musicVolSlider.getValue()/100;
+				SoundParam.getinstance().musicLevel = musicVolSlider.getValue()/100;
 			}
 		}); 
 		
@@ -138,7 +123,7 @@ public class ControlMenu extends RenderingScreen{
 			
 			@Override
 			public void changed(ChangeEvent e, Actor fxVolSlider) {
-				ParamSingleton.getinstance().fxLevel = musicVolSlider.getValue()/100; 
+				SoundParam.getinstance().fxLevel = musicVolSlider.getValue()/100; 
 			}
 		});
 		

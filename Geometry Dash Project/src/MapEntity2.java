@@ -7,16 +7,14 @@ import com.badlogic.gdx.math.Vector2;
 
 public class MapEntity2 implements DrawableObject {
 
-	PhysicsStaticBox stepBox; 
-	int height; 
+	Platform stepBox; 
+	int height = Gsing.get().me2H; 
 	int length; 
 	public MapEntity2(int length, Vector2 position) {
-		this.height = Gsing.get().me2H;
 		this.length = length; 
-		stepBox = new PhysicsStaticBox("stepBox", position, length, height, 0); 
+		stepBox = new Platform(position, length, height); 
 	}
 	public void draw(GdxGraphics g) {
-		Vector2 pos = new Vector2(stepBox.getBodyWorldCenter());
-		g.drawFilledRectangle(pos.x, pos.y, length, height, 0, Color.BLACK); 
+		stepBox.draw(g); 
 	}
 }

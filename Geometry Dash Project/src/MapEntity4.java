@@ -1,53 +1,63 @@
+import java.util.Random;
 import java.util.Vector;
-
 import com.badlogic.gdx.math.Vector2;
-
 import ch.hevs.gdx2d.components.audio.SoundSample;
 import ch.hevs.gdx2d.lib.GdxGraphics;
 import ch.hevs.gdx2d.lib.interfaces.DrawableObject;
 
-
 public class MapEntity4 implements DrawableObject {
-
-	HoleOfTheDamned hole; 
-	Vector<DoubleJumpBox> boxes = new Vector<DoubleJumpBox>(); 
-	Vector2 pos; 
-	int highYPoint = 800; 
-	int middleYPoint = 600; 
-	int lowYPoint = 400;
-	int holeWidth = Gsing.get().holeWidthme4; 
-	SoundSample death; 
 	
-	public MapEntity4(String name, Vector2 position, int boxDim, SoundSample sound) {
-		
-		this.pos = position;
-		this.death = sound; 
-		hole = new HoleOfTheDamned("Hole", holeWidth, pos, death); 
-		hole.enableCollisionListener(); 
-		hole.setSensor(true); 
-		pos.x -= holeWidth/2 - 200; 
-			
-				for(int i = 0; i < 10; i++){
-				pos.y = highYPoint; 
-				DoubleJumpBox box1 = new DoubleJumpBox("Box group" + i, position, boxDim, boxDim, 0);
-				boxes.add(box1); 
-				pos.y = lowYPoint;
-				DoubleJumpBox box2 = new DoubleJumpBox("Box group" + i, position, boxDim, boxDim, 0);
-				boxes.add(box2); 
-				pos.x += boxDim*4; 
-				pos.y = middleYPoint; 
-				DoubleJumpBox box3 = new DoubleJumpBox("Box group" + i, position, boxDim, boxDim, 0);
-				boxes.add(box3); 
-				pos.x += boxDim*4; 
-			}
+	Vector<ME4Obstacle>  obstacles = new Vector<ME4Obstacle>(); 
+	Platform platform; 
+	SoundSample loveHurts; 
+	int height = Gsing.get().platformHeight; 
+	int width; 
+	Random r = new Random(); 
+	Vector2 obsPos = new Vector2(0,0); 
+	
+	//Same sound sample as if the cube had touched a VarObstacle
+	
+	/*
+	 * have to make a method to make the cube bounce when it touches an obstacle 
+	 */
+	
+	public MapEntity4(int width, Vector2 position, SoundSample sound, Random rand) {
+		platform = new Platform(position, width, Gsing.get().platformHeight);
+		this.loveHurts = sound; 
+		this.width = width; 
+		this.r = rand; 
+		obsPos.x = position.x - width/2; 
+		obsPos.y = position.y + height + Gsing.get().obsH/2; 
+		generateRandomObstacles(); 
 	}
 
 	public void draw(GdxGraphics g) {
-	
-		for (DoubleJumpBox box : boxes) {
-			box.draw(g); 
+		platform.draw(g); 
+		for (ME4Obstacle obs : obstacles) {
+			obs.draw(g); 
 		}
-		hole.draw(g); 
+	}
+	
+	public void generateRandomObstacles(){
 		
+		for(int i = 0; i < 25; i++){
+			if(r.nextBoolean())
+			{
+				obsPos.y = 125; 
+				obsPos.x += 700; 
+				if(r.nextDouble()*11 > 5)
+				{
+					obsPos.y = 280; 
+					ME4Sensor obstacle = new ME4Sensor(obsPos); 
+					obstacles.add(obstacle);
+				}
+				
+				else
+				{
+					ME4Obstacle obstacle = new ME4Obstacle(obsPos); 
+					obstacles.add(obstacle);
+				}
+			}	
+		}
 	}
 }

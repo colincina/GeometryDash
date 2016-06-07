@@ -68,7 +68,7 @@ public class MenuWindow extends RenderingScreen{
 		textArea.setTextFieldListener(new TextFieldListener() {
 			public void keyTyped(TextField textField, char key) {
 				textArea.setSelection(0, 0);
-
+				
 				// When you press 'enter', do something
 				if (key == 13)
 					Logger.log("You have typed " + textArea.getText());

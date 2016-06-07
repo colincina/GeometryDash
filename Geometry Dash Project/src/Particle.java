@@ -4,6 +4,7 @@ import ch.hevs.gdx2d.components.physics.primitives.PhysicsBox;
 import ch.hevs.gdx2d.lib.GdxGraphics;
 import ch.hevs.gdx2d.lib.interfaces.DrawableObject;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
 
@@ -26,12 +27,14 @@ public class Particle extends PhysicsBox implements DrawableObject{
 	
 	public void draw(GdxGraphics g) {
 		
-		r.setSeed(seed);
-		int red = (int)(r.nextInt()*255);
-		int green = (int)(r.nextInt()* 255);
-		int blue = (int)(r.nextInt()* 255);
+//		r.setSeed(seed);
+//		int red = (int)(r.nextInt()*255);
+//		int green = (int)(r.nextInt()* 255);
+//		int blue = (int)(r.nextInt()* 255);
 		Vector2 pos = this.getBodyWorldCenter(); 
-		g.drawFilledRectangle(pos.x, pos.y, size, size, this.getBodyAngle(), new Color(red, green, blue, 0)); 
+//		g.drawFilledRectangle(pos.x, pos.y, size, size, this.getBodyAngle(), new Color(red, green, blue, 0)); 
+		g.drawFilledRectangle(pos.x, pos.y, size, size, this.getBodyAngle() * MathUtils.radiansToDegrees, Color.BLACK); 
+
 	}
 
 }

@@ -104,7 +104,7 @@ public class GameOverWindow extends RenderingScreen{
 		// This is required for having the GUI work properly
 		stage.act();
 		stage.draw();
-
+		g.drawStringCentered(Gdx.graphics.getHeight() / 4, "Seed : " + Gsing.get().mapGenSeed);
 //		g.drawStringCentered(getWindowHeight() / 4, "Colin Cina & Martin Juon");
 		g.drawSchoolLogo();
 		g.drawFPS();
