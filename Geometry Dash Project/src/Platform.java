@@ -33,7 +33,7 @@ public class Platform extends PhysicsStaticBox implements DrawableObject{
 		g.drawFilledRectangle(pos.x, pos.y, width, height, 0, Color.BLACK); 
 		
 		if(drawSuperFancyLine){
-			g.drawFilledRectangle(pos.x, pos.y + height/2 - 20, this.width, this.lHeight, 0, Color.GREEN); 
+			g.drawFilledRectangle(pos.x, pos.y + height/2 - 20, this.width, this.lHeight, 0, Color.PURPLE); 
 		}
 		
 	}

@@ -19,7 +19,7 @@ public class JumpDetector extends PhysicsStaticBox implements DrawableObject{
 			if (theOtherObject instanceof Cube) {
 				System.out.println(theOtherObject.name + "Should not be grounded annymore");
 				Cube cube = (Cube) theOtherObject;
-				cube.checkJump = true; 
+				cube.isTouching = false; 
 			}
 		}
 		public void draw(GdxGraphics g) {

@@ -7,11 +7,14 @@ import ch.hevs.gdx2d.lib.physics.AbstractPhysicsObject;
 
 public class Sensor extends PhysicsStaticBox implements DrawableObject {
 
-	int width = Gsing.get().obsW; 
-	int height = Gsing.get().obsH; 
+	int height; 
+	int width; 
+	boolean alreadyCollided = false; 
 	
-	public Sensor(Vector2 position) {
-		super(null, position, Gsing.get().obsW, Gsing.get().obsH);
+	public Sensor(Vector2 position, int width, int height) {
+		super(null, position, width, height);
+		this.width = width; 
+		this.height = height; 
 		this.enableCollisionListener(); 
 		this.setSensor(true); 
 	}
@@ -20,8 +23,7 @@ public class Sensor extends PhysicsStaticBox implements DrawableObject {
 	public void collision(AbstractPhysicsObject theOtherObject, float energy) {
 		super.collision(theOtherObject, energy);
 		if (theOtherObject instanceof Cube) {
-			Cube cube1 = (Cube) theOtherObject;
-			cube1.isHurt = true; 
+			Cube cube = (Cube) theOtherObject;
 			System.out.println(theOtherObject.name + " has been hurt by " + this.name);
 		}
 	}

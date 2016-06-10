@@ -110,7 +110,6 @@ public class MenuWindow extends RenderingScreen{
 		// This is required for having the GUI work properly
 		stage.act();
 		stage.draw();
-
 //		g.drawStringCentered(getWindowHeight() / 4, "Colin Cina & Martin Juon");
 		g.drawSchoolLogo();
 		g.drawFPS();

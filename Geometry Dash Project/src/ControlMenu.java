@@ -89,15 +89,15 @@ public class ControlMenu extends RenderingScreen{
 			public void clicked(InputEvent event, float x, float y) {
 				super.clicked(event, x, y);
 					
-					if(ControlMenu.this.backToMenuButton.isChecked()){
+					if(ControlMenu.this.soundOnOffButton.isChecked()){
 						state = "On"; 
 					}
-					if(!ControlMenu.this.backToMenuButton.isChecked())
+					if(!ControlMenu.this.soundOnOffButton.isChecked())
 					{
 						state = "Off"; 
 					}
 					stateCounter++; 
-					ControlMenu.this.backToMenuButton.setText("Sound " + state);
+					ControlMenu.this.soundOnOffButton.setText("Sound " + state);
 			}
 		});
 		

@@ -22,56 +22,47 @@ public class Cube extends PhysicsBox implements DrawableObject {
 	
 	boolean jump = false; 
 	boolean specialJump = false; 
-	boolean isTouching = true;
+	boolean isTouching = false;
 	boolean isHurt = false; 
 	boolean cubeDead = false; 
 	boolean stopInc = false; 
-	boolean checkJump = false; 
+	boolean checkInAirRotation = false; 
 	private boolean firstTouchdown = false; 
 	
-	private int cubeSize = Gsing.get().cSize; 
 	private int particleAmount = Gsing.get().cParticleAmount; 
 	private int drawAngle;
 	private int currentFrame = 0;
 	private int currentRow = 0;
 	private int nFrames = 9; 
 	private int dir = 1; 
-	private int cubeDamageCnt = 0; 
+	private int i = 0; 
+	int cubeDamageCnt = 0; 
 	
 	float dt = 0; 
-	float interval = 0; 
 	float jumpCountDown = 0.2f; 
 	float frameTime = 0.02f; 
-	float torque;
 	
 	double angle = Math.PI/4; 
 	Vector2 specialImpulse = new Vector2((float)(100*Math.cos(angle)), (float)(100*Math.sin(angle)));
 	long creationTime; 
-	Spritesheet birth; 
+	Spritesheet cubeBirth = new Spritesheet("data/Spritesheets/cubeBirthSpriteSheet.png", 170, 170); 
 	
-	/*
-	 *  index 1 = birth, index 2 = death 
-	 *  Have to fix this to make it more readable. -> hashmaps + enum maybe
-	 */
-	Vector<SoundSample> sounds; 
+	SoundSample birth = new SoundSample("data/sounds/birth.mp3");
+	SoundSample death = new SoundSample("data/sounds/death.mp3"); 
+	SoundSample impact = new SoundSample("data/sounds/impact.mp3");
 	
 	LinkedList<Particle> particles;
 	
-	public Cube(Vector2 position, Spritesheet spriteSkin, Vector<SoundSample> pSounds){
+	public Cube(Vector2 position){
 		
-		/*
-		 * Why is it impossible to use the instance field cubeSize?
-		 */
 		super("Cube", position, Gsing.get().cSize, Gsing.get().cSize, 3f, 0, 0);
-		this.sounds = pSounds;
-		this.birth = spriteSkin; 
-		this.getBody().setFixedRotation(true); 
 		this.setCollisionGroup(-1); 
 		this.drawAngle = 0;
-		Gsing.get().cImpulse = this.getBodyMass()* 15; 
-		torque = this.getBodyMass() * 15; 
+		this.getBody().setFixedRotation(true); 
+		Gsing.get().cImpulse = this.getBodyMass() * 15; 
 		particles = new LinkedList<Particle>(); 
-		sounds.get(0).play(); 
+		impact.setVolume(0.15f); 
+		death.setVolume(0.15f); 
 	}
 	
 	@Override
@@ -80,14 +71,24 @@ public class Cube extends PhysicsBox implements DrawableObject {
 		super.collision(theOtherObject, energy);
 		
 		if(theOtherObject.getClass() == Platform.class || theOtherObject.getClass() == PhysicsStaticBox.class){
-			sounds.get(1).play();
+			impact.play(); 
 			isTouching = true; 
-			firstTouchdown = true; 
+			firstTouchdown = true;
 		
 		}
-		if(theOtherObject.getClass() == VarObstacle.class){
+		if (theOtherObject instanceof Sensor) {
+			Sensor sensor = (Sensor) theOtherObject;
+			if(!sensor.alreadyCollided)
 			cubeDamageCnt++; 
+			impact.play(); 
 			isHurt = true; 
+			sensor.alreadyCollided = true;
+		}
+		
+		if(theOtherObject.getClass() == HoleOfTheDamned.class){
+			death.play(); 
+			cubeDead = true; 
+			Gsing.get().totalDistance = (int)(this.getBodyWorldCenter().x); 
 		}
 		
 //		System.out.println("Collided with " + theOtherObject);
@@ -99,16 +100,12 @@ public class Cube extends PhysicsBox implements DrawableObject {
 		 * Still have to ajust this so that the cube is not able to jump anymore exactly when is 
 		 * is at the edge of the box 
 		 */
-		jumpCountDown = this.getBodyLinearVelocity().x * 10 / cubeSize; 
 		
 		/*
 		 * Have to cleanup all this logic mess!! ######################################
 		 */
-		if(checkJump){
-			checkJumpingStatus(); 
-			System.out.println(interval);
-		}
 		
+		System.out.println(drawAngle); 
 		if(firstTouchdown){
 			//linear x movement of the cube 
 			this.applyBodyForceToCenter(Gsing.get().cSpeed, 0, true); 
@@ -122,7 +119,8 @@ public class Cube extends PhysicsBox implements DrawableObject {
 		if(jump && isTouching){
 			jump = false; 
 			isTouching = false; 
-			pos = this.getBodyWorldCenter(); 
+			checkInAirRotation = true; 
+			pos = this.getBodyWorldCenter();
 			this.applyBodyLinearImpulse(new Vector2(0, Gsing.get().cImpulse), pos, true);
 		}
 		
@@ -135,11 +133,9 @@ public class Cube extends PhysicsBox implements DrawableObject {
 			Logger.log("jumped in a special way"); 
 		}
 		
-		if(!isTouching){
-			checkJump = false; 
-			drawAngle -=4; 
+		if(checkInAirRotation){
+			setDrawAngle(); 
 		}
-		
 		checkParticles4Destruction();
 	}
 	
@@ -163,7 +159,7 @@ public class Cube extends PhysicsBox implements DrawableObject {
 		}
 		
 		//If the cube has taken some damage, we display a special SpriteSheet
-		if(cubeDamageCnt >= 1){
+		if(cubeDamageCnt >= 1 && cubeDamageCnt < 7){
 			currentRow = 2; 
 			currentFrame = cubeDamageCnt - 1; 
 		}
@@ -173,9 +169,8 @@ public class Cube extends PhysicsBox implements DrawableObject {
 		
 		updateLogic(); 
 		updateGraphics(g); 
-
 		Vector2 pos = this.getBodyWorldCenter(); 
-		g.draw(birth.sprites[currentRow][currentFrame], pos.x - (cubeSize/2 + 10), pos.y - (cubeSize/2 + 10));
+		g.draw(cubeBirth.sprites[currentRow][currentFrame],pos.x - 85, pos.y - 85, 85, 85, 170, 170, 1, 1, drawAngle); 
 		for (Particle particle : particles) {
 			particle.draw(g); 
 		}
@@ -208,7 +203,7 @@ public class Cube extends PhysicsBox implements DrawableObject {
 	public void checkParticles4Destruction(){
 		
 	//destroys the particles after a while
-			if(System.nanoTime() - creationTime > Long.MAX_VALUE/2){
+			if(System.nanoTime() - creationTime > 3*Math.pow(10, 9)){
 				
 				while(!particles.isEmpty()){
 					Particle p = particles.poll();
@@ -216,14 +211,13 @@ public class Cube extends PhysicsBox implements DrawableObject {
 				}
 			}
 	}
-	
-	public void checkJumpingStatus(){
-		interval += Gdx.graphics.getDeltaTime(); 
-		if(interval >= jumpCountDown){
-			interval = 0; 
-			isTouching = false; 
+
+	public void setDrawAngle(){
+			
+		drawAngle -= 9;
+		
+		if(drawAngle % 180 == 0){
+			checkInAirRotation = false; 
 		}
 	}
-	
 }
-

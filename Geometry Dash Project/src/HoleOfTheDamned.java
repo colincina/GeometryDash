@@ -11,16 +11,14 @@ import com.badlogic.gdx.math.Vector2;
 		
 		int width; 
 		boolean playerDiedInMe = false; 
-		SoundSample sDeath;
 		JumpDetector detector; 
 		
-		public HoleOfTheDamned(int width, Vector2 position, SoundSample sound) {
+		public HoleOfTheDamned(int width, Vector2 position) {
 			super(null, position, width, Gsing.get().holeHeight, 0);
-			detector = new JumpDetector(new Vector2(position.x - width/2 + Gsing.get().detectorW/2, position.y + Gsing.get().detectorH/2)); 
+			detector = new JumpDetector(new Vector2(position.x - width/2 + Gsing.get().detectorW/2 + Gsing.get().cSize, position.y + Gsing.get().detectorH/2)); 
 			detector.enableCollisionListener(); 
 			detector.setSensor(true); 
 			this.width = width; 
-			sDeath = sound; 
 		}
 	
 		@Override
@@ -31,14 +29,12 @@ import com.badlogic.gdx.math.Vector2;
 				Cube cube1 = (Cube) theOtherObject;
 				cube1.cubeDead = true; 
 				playerDiedInMe = true; 
-				sDeath.play(); 
 				System.out.println(theOtherObject.name + " Collided with " + this.name);
 			}
 		}
 	
 		public void draw(GdxGraphics g) {
 			
-			detector.draw(g); 
 			Vector2 pos = this.getBodyWorldCenter();
 			g.drawFilledRectangle(pos.x, pos.y, width, Gsing.get().holeHeight, 0, Color.RED);
 		}

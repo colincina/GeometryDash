@@ -3,16 +3,16 @@ import ch.hevs.gdx2d.lib.GdxGraphics;
 import ch.hevs.gdx2d.lib.interfaces.DrawableObject;
 
 
-public class ME4HighObstacle extends ME4Obstacle implements DrawableObject {
+public class ME4HighObstacle extends ME4Obstacle{
 
-	ME4Sensor sensor; 
+	Sensor sensor; 
 	Platform platform; 
     	
 	public ME4HighObstacle(Vector2 position){
-		super(position); 
-		platform = new Platform(position, height, width); 
+		sensor  = new Sensor(position, Gsing.get().obsW1, Gsing.get().obsH);
+		pos = position;
 		pos.y -= height; 
-		sensor  = new ME4Sensor(position);
+		platform = new Platform(position, width1, height); 
 	}
 	
 	public void draw(GdxGraphics g) {

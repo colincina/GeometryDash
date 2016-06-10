@@ -17,7 +17,7 @@ public class MapEntity1 implements DrawableObject {
 		
 		this.platformLength = platformLength; 
 		
-		hole = new HoleOfTheDamned(Gsing.get().holeWidthme1, holePosition, death); 
+		hole = new HoleOfTheDamned(Gsing.get().holeWidthme1, holePosition); 
 		hole.setSensor(true); 
 		hole.enableCollisionListener();
 		
@@ -46,7 +46,7 @@ public class MapEntity1 implements DrawableObject {
 			{
 				float xPos = pos.x + (float)(Math.random()*200 - 100); 
 				Vector2 obsPosition = new Vector2(xPos, 200); 
-				obs1 = new VarObstacle(40, 200, obsPosition);  
+				obs1 = new VarObstacle(obsPosition);  
 			}
 		}
 	}

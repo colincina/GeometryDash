@@ -99,14 +99,21 @@ public class GameOverWindow extends RenderingScreen{
 	}
 
 	public void onGraphicRender(GdxGraphics g) {
-		g.clear(Color.NAVY);
+		g.clear();
 
 		// This is required for having the GUI work properly
-		stage.act();
-		stage.draw();
-		g.drawStringCentered(Gdx.graphics.getHeight() / 4, "Seed : " + Gsing.get().mapGenSeed);
+
+//		stage.act();
+//		stage.draw();
+//		g.setColor(Color.GREEN); 
+//		g.drawStringCentered(Gdx.graphics.getHeight()/2, "Congratulation! Your journey was " + Gsing.get().totalDistance + "Long!");
+//		System.out.println("HIHI" + Gsing.get().totalDistance/10);
+//		g.drawStringCentered(700, "Seed : " + Gsing.get().mapGenSeed);
 //		g.drawStringCentered(getWindowHeight() / 4, "Colin Cina & Martin Juon");
 		g.drawSchoolLogo();
+		g.drawFilledRectangle(100,100,100,100,0,Color.BLACK);
+		g.drawFilledCircle(100,100,100,Color.CYAN);
+		g.drawFilledRectangle(100,100,100,100,0,Color.GREEN);
 		g.drawFPS();
 	}
 
@@ -114,6 +121,8 @@ public class GameOverWindow extends RenderingScreen{
 	public void dispose() {
 		PhysicsWorld.dispose();
 		super.dispose();
+		GameWindow.sGameMusic.stop(); 
+		GameWindow.sGameMusic.dispose(); 
 	}
 }
 

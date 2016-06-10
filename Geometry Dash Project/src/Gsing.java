@@ -16,7 +16,8 @@ public class Gsing {
 
 	//Hole of the damned
 	int holeWidthme1 = 500; 
-	int holeWidthme3 = 300;
+	int holeWidthme3 = 300; 
+	int holeWidthme3Big = 450; 
 	int holeWidthme4 = 2000; 
 	int holeHeight = 25; 
 	
@@ -35,17 +36,24 @@ public class Gsing {
 	long enteredSeed; 
 	
 	//Jump Detector dimensions 
-	int detectorH = 500; 
+	int detectorH = 600; 
 	int detectorW = 25; 
 	
 	//Double jump box dimensions
 	int boxDim = 20;  
 	
 	//ME4Obstacle dimensions
-	int obsW = 150; 
+	int obsW1 = 150; 
+	int obsW2 = 300;  
 	int obsH = 50; 
+	int obsOffset = 800; 
+	
+	//VarObstacle dimensions
+	int VarObsW1 = 40; 
+	int VarObsH1 = 200; 
 	
 	
+	int totalDistance; 
 
 	/* 
 	 * Superdupermega private constructor of Henry Death

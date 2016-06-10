@@ -40,24 +40,32 @@ public class MapEntity4 implements DrawableObject {
 	
 	public void generateRandomObstacles(){
 		
-		for(int i = 0; i < 25; i++){
-			if(r.nextBoolean())
-			{
+		int possibleObstacles = width/(Gsing.get().obsW2 + Gsing.get().obsOffset); 
+		System.out.println(possibleObstacles);
+		obsPos.x += Gsing.get().obsOffset/2;
+		for(int i = 0; i <= possibleObstacles ; i++){
 				obsPos.y = 125; 
-				obsPos.x += 700; 
-				if(r.nextDouble()*11 > 5)
+				obsPos.x += Gsing.get().obsOffset; 
+				
+				//logic to decide which type of obstacle will be instanciated
+				if(r.nextDouble()*10 > 5)
 				{
-					obsPos.y = 280; 
-					ME4Sensor obstacle = new ME4Sensor(obsPos); 
+					obsPos.y = 350; 
+					ME4HighObstacle obstacle = new ME4HighObstacle(obsPos); 
 					obstacles.add(obstacle);
 				}
 				
+				else if(r.nextDouble()*11 <= 5){
+					obsPos.y  = 300; 
+					ME4LowPlatformObstacle obstacle = new ME4LowPlatformObstacle(obsPos); 
+					obstacles.add(obstacle); 
+				}
 				else
 				{
-					ME4Obstacle obstacle = new ME4Obstacle(obsPos); 
+					ME4LowObstacle obstacle = new ME4LowObstacle(obsPos); 
 					obstacles.add(obstacle);
-				}
-			}	
+				}	
 		}
+	
 	}
 }
