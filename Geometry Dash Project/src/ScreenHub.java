@@ -1,3 +1,4 @@
+import ch.hevs.gdx2d.components.screen_management.RenderingScreen;
 import ch.hevs.gdx2d.desktop.PortableApplication;
 import ch.hevs.gdx2d.lib.GdxGraphics;
 import ch.hevs.gdx2d.lib.ScreenManager;
@@ -28,12 +29,16 @@ public class ScreenHub extends PortableApplication{
 	
 	    public void onClick(int x, int y, int button) {
 	    	// Delegate the click to the child class
-	        s.getActiveScreen().onClick(x, y, button);
+	    	RenderingScreen activeScreen = s.getActiveScreen();
+	    	if (activeScreen != null)
+	    		activeScreen.onClick(x, y, button);
 	    }
 	 
 	    public void onKeyDown(int keycode) {
 	    	// Delegate the onKeyDown to the child class
-	    	s.getActiveScreen().onKeyDown(keycode);
+	    	RenderingScreen activeScreen = s.getActiveScreen();
+	    	if (activeScreen != null)
+	    		activeScreen.onKeyDown(keycode);
 	    }
 	    
 	    public static void main(String[] args) {
