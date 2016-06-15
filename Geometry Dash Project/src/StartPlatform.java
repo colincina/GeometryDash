@@ -5,7 +5,7 @@ import ch.hevs.gdx2d.lib.GdxGraphics;
 import ch.hevs.gdx2d.lib.interfaces.DrawableObject;
 
 
-public class StartPlatform implements DrawableObject{
+public class StartPlatform implements DrawableObject {
 
 	int width;
 	PhysicsStaticBox startPlatform; 

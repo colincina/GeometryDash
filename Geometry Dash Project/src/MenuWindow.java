@@ -100,7 +100,7 @@ public class MenuWindow extends RenderingScreen{
 				ScreenHub.s.transitionTo(1, ScreenManager.TransactionType.SMOOTH); 
 			}
 		});
-		loop.loop(); 
+//		loop.loop(); 
 	}
 	
 	public void onGraphicRender(GdxGraphics g) {

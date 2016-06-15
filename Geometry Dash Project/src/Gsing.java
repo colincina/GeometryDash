@@ -1,3 +1,8 @@
+import java.util.Vector;
+
+import ch.hevs.gdx2d.components.physics.primitives.PhysicsBox;
+import ch.hevs.gdx2d.lib.interfaces.DrawableObject;
+
 
 public class Gsing {
 
@@ -8,7 +13,8 @@ public class Gsing {
 	int cParticleAmount = 30; 
 	int pImpulse = 20;
 	float cSpeed = 55f; 
-	float cImpulse;
+	float cImpulse; 
+	float cForce; 
 	
 	//Platform parameters
 	int platformHeight = 100; 
@@ -33,6 +39,7 @@ public class Gsing {
 	
 	//Seed Management Logic
 	boolean seedBeingUsed = false; 
+	boolean retryMap = false; 
 	long enteredSeed; 
 	
 	//Jump Detector dimensions 
@@ -52,9 +59,12 @@ public class Gsing {
 	int VarObsW1 = 40; 
 	int VarObsH1 = 200; 
 	
+	//AirTime dimensions
+	int AirPlatformWidth = 2000;
 	
 	int totalDistance; 
 
+//	Vector<PhysicsBox> todestroy = new Vector<PhysicsBox>(); 
 	/* 
 	 * Superdupermega private constructor of Henry Death
 	 */

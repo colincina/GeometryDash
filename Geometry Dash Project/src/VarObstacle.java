@@ -10,11 +10,11 @@ public class VarObstacle implements DrawableObject {
 
 	int width; 
 	int height; 
-	Sensor sensor; 
+	DamageSensor sensor; 
 //	boolean iKilledTheCube = false; 
 	
 	public VarObstacle(Vector2 position) {
-		sensor = new Sensor(position, Gsing.get().VarObsW1, Gsing.get().VarObsH1); 
+		sensor = new DamageSensor(position, Gsing.get().VarObsW1, Gsing.get().VarObsH1); 
 	}
 	
 	public void draw(GdxGraphics g) {

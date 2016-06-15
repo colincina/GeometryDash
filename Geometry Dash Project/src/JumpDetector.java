@@ -12,6 +12,8 @@ public class JumpDetector extends PhysicsStaticBox implements DrawableObject{
 	
 	public JumpDetector(Vector2 position) {
 		super(null, position, Gsing.get().detectorW, Gsing.get().detectorH, 0);
+		this.enableCollisionListener(); 
+		this.setSensor(true); 
 	}
 		@Override
 		public void collision(AbstractPhysicsObject theOtherObject, float energy) {

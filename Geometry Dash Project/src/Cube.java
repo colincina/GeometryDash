@@ -1,3 +1,4 @@
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.Vector;
@@ -8,6 +9,7 @@ import ch.hevs.gdx2d.components.bitmaps.Spritesheet;
 import ch.hevs.gdx2d.components.physics.primitives.PhysicsBox;
 import ch.hevs.gdx2d.components.physics.primitives.PhysicsStaticBox;
 import ch.hevs.gdx2d.lib.GdxGraphics;
+import ch.hevs.gdx2d.lib.ScreenManager;
 import ch.hevs.gdx2d.lib.interfaces.DrawableObject;
 import ch.hevs.gdx2d.lib.physics.AbstractPhysicsObject;
 import ch.hevs.gdx2d.lib.utils.Logger;
@@ -21,13 +23,19 @@ public class Cube extends PhysicsBox implements DrawableObject {
 	Vector2 pos;
 	
 	boolean jump = false; 
+	boolean fly = false; 
+	boolean jumpMode = true;
+	boolean flyMode = false; 
 	boolean specialJump = false; 
 	boolean isTouching = false;
 	boolean isHurt = false; 
-	boolean cubeDead = false; 
 	boolean stopInc = false; 
-	boolean checkInAirRotation = false; 
+	boolean cubeDead = false; 
+	boolean itsTheEnd = false; 
+	
+	private boolean checkInAirRotation = false; 
 	private boolean firstTouchdown = false; 
+	private boolean gameMode = true; 
 	
 	private int particleAmount = Gsing.get().cParticleAmount; 
 	private int drawAngle;
@@ -36,10 +44,14 @@ public class Cube extends PhysicsBox implements DrawableObject {
 	private int nFrames = 9; 
 	private int dir = 1; 
 	private int i = 0; 
+	private int angleIndex; 
+	
+	public int CREATION_RATE = 1;
+	public final int MAX_AGE = 20;
+	
 	int cubeDamageCnt = 0; 
 	
 	float dt = 0; 
-	float jumpCountDown = 0.2f; 
 	float frameTime = 0.02f; 
 	
 	double angle = Math.PI/4; 
@@ -52,14 +64,18 @@ public class Cube extends PhysicsBox implements DrawableObject {
 	SoundSample impact = new SoundSample("data/sounds/impact.mp3");
 	
 	LinkedList<Particle> particles;
+
+	Random random; 
 	
-	public Cube(Vector2 position){
+	public Cube(Vector2 position, Random rand){
 		
 		super("Cube", position, Gsing.get().cSize, Gsing.get().cSize, 3f, 0, 0);
 		this.setCollisionGroup(-1); 
 		this.drawAngle = 0;
-		this.getBody().setFixedRotation(true); 
-		Gsing.get().cImpulse = this.getBodyMass() * 15; 
+		this.getBody().setFixedRotation(true);
+		this.random = rand; 
+		Gsing.get().cImpulse = this.getBodyMass() * 15;
+		Gsing.get().cForce = this.getBodyMass() * 500;
 		particles = new LinkedList<Particle>(); 
 		impact.setVolume(0.15f); 
 		death.setVolume(0.15f); 
@@ -70,14 +86,14 @@ public class Cube extends PhysicsBox implements DrawableObject {
 		
 		super.collision(theOtherObject, energy);
 		
-		if(theOtherObject.getClass() == Platform.class || theOtherObject.getClass() == PhysicsStaticBox.class){
+		if(theOtherObject.getClass() == PhysicsStaticBox.class || theOtherObject.getClass() == Platform.class){
 			impact.play(); 
 			isTouching = true; 
 			firstTouchdown = true;
-		
 		}
-		if (theOtherObject instanceof Sensor) {
-			Sensor sensor = (Sensor) theOtherObject;
+		
+		if (theOtherObject instanceof DamageSensor) {
+			DamageSensor sensor = (DamageSensor) theOtherObject;
 			if(!sensor.alreadyCollided)
 			cubeDamageCnt++; 
 			impact.play(); 
@@ -85,59 +101,121 @@ public class Cube extends PhysicsBox implements DrawableObject {
 			sensor.alreadyCollided = true;
 		}
 		
-		if(theOtherObject.getClass() == HoleOfTheDamned.class){
+		if(theOtherObject.getClass() == HoleOfTheDamned.class || theOtherObject.getClass() == AirTimeObstacle.class){
 			death.play(); 
 			cubeDead = true; 
 			Gsing.get().totalDistance = (int)(this.getBodyWorldCenter().x); 
 		}
 		
-//		System.out.println("Collided with " + theOtherObject);
-	}
-	
-	public void updateLogic(){
+		if(theOtherObject.getClass() == ModeSelector.class){
+			jumpMode = !jumpMode;
+			flyMode = !flyMode; 
+			isTouching = true;
+			checkInAirRotation = true; 
+		}
 		
-		/*
-		 * Still have to ajust this so that the cube is not able to jump anymore exactly when is 
-		 * is at the edge of the box 
-		 */
+		if(theOtherObject.getClass() == HorizontalCollisionSensor.class){
+			Vector2 pos = this.getBodyWorldCenter(); 
+//			this.setBodyLinearVelocity(this.getBodyLinearVelocity().x * 2, 17);
+			System.out.println(this.getBodyLinearVelocity().y);
+				
+				if(this.getBodyLinearVelocity().y < 8){
+					this.applyBodyLinearImpulse(new Vector2(0, Gsing.get().cImpulse), pos, true);
+				}	
+//		
+				else{
+					this.applyBodyLinearImpulse(new Vector2(0, Gsing.get().cImpulse/3), pos, true); 
+				}
+			System.out.println("Collided with " + theOtherObject);
+		}
+		
+		if(theOtherObject.getClass() == WinSensor.class){
+			gameMode = false; 
+			this.setBodyLinearDamping(.7f); 
+		}
+	}
+	public void updateLogic(){
 		
 		/*
 		 * Have to cleanup all this logic mess!! ######################################
 		 */
 		
-		System.out.println(drawAngle); 
-		if(firstTouchdown){
-			//linear x movement of the cube 
-			this.applyBodyForceToCenter(Gsing.get().cSpeed, 0, true); 
-			this.setBodyLinearDamping(0.3f); 
+		if(gameMode){
+			if(firstTouchdown){
+				//linear x movement of the cube 
+				this.applyBodyForceToCenter(Gsing.get().cSpeed, 0, true); 
+				this.setBodyLinearDamping(0.3f); 
+			}
+			
+			if(!stopInc){
+				this.applyBodyForceToCenter(0, 50*this.getBodyMass(), true);
+			}
+			
+			if(jump && isTouching){
+				jump = false; 
+				isTouching = false; 
+				checkInAirRotation = true; 
+				pos = this.getBodyWorldCenter();
+//				this.setBodyLinearVelocity(this.getBodyLinearVelocity().x, 17); 
+				this.applyBodyLinearImpulse(new Vector2(0, Gsing.get().cImpulse), pos, true);
+			}
+			
+			if(flyMode){
+				pos = this.getBodyWorldCenter();
+				this.applyBodyForceToCenter(0, 35*this.getBodyMass(), true);
+				
+				if(fly){
+					fly = false; 
+					this.applyBodyForceToCenter(0, Gsing.get().cForce, true); 
+				}
+			}
+			
+			if(specialJump && isTouching){
+				angle = Math.random()*Math.PI*2; 
+				specialJump = false; 
+				isTouching = false; 
+				pos = this.getBodyWorldCenter(); 
+				this.applyBodyLinearImpulse(specialImpulse, pos, true); 
+				Logger.log("jumped in a special way"); 
+			}
+			
+			if(checkInAirRotation){
+				setDrawAngle(); 
+			}
+			
+			if(cubeDamageCnt == 6){
+				cubeDead = true; 
+			}
+			
+			//check if the cube has encountered an obstacle
+			if(isHurt)
+			{
+				emitParticle(); 
+			}
+			
+			if(cubeDead){
+				ScreenHub.s.transitionTo(2, ScreenManager.TransactionType.SLICE); 
+			}
+			
 		}
 		
-		if(!stopInc){
-			this.applyBodyForceToCenter(0, 50*this.getBodyMass(), true);
+		else{
+			
+			if(this.getBodyLinearVelocity().x < .1 && !itsTheEnd){
+				if(this.getBodyWorldCenter().y <= Gdx.graphics.getHeight()*.75){
+					this.applyBodyForceToCenter(0, 700f, true);
+//					this.getBody().setTransform(this.getBodyPosition(), 0);
+				}
+				else{
+					emitParticle(); 
+					itsTheEnd = true; 
+				}
+			}
 		}
 		
-		if(jump && isTouching){
-			jump = false; 
-			isTouching = false; 
-			checkInAirRotation = true; 
-			pos = this.getBodyWorldCenter();
-			this.applyBodyLinearImpulse(new Vector2(0, Gsing.get().cImpulse), pos, true);
-		}
-		
-		if(specialJump && isTouching){
-			angle = Math.random()*Math.PI*2; 
-			specialJump = false; 
-			isTouching = false; 
-			pos = this.getBodyWorldCenter(); 
-			this.applyBodyLinearImpulse(specialImpulse, pos, true); 
-			Logger.log("jumped in a special way"); 
-		}
-		
-		if(checkInAirRotation){
-			setDrawAngle(); 
-		}
 		checkParticles4Destruction();
 	}
+	
 	
 	public void updateGraphics(GdxGraphics g){
 		
@@ -170,7 +248,11 @@ public class Cube extends PhysicsBox implements DrawableObject {
 		updateLogic(); 
 		updateGraphics(g); 
 		Vector2 pos = this.getBodyWorldCenter(); 
-		g.draw(cubeBirth.sprites[currentRow][currentFrame],pos.x - 85, pos.y - 85, 85, 85, 170, 170, 1, 1, drawAngle); 
+		
+		if(!itsTheEnd){
+			g.draw(cubeBirth.sprites[currentRow][currentFrame],pos.x - 85, pos.y - 85, 85, 85, 170, 170, 1, 1, drawAngle); 
+		}
+		
 		for (Particle particle : particles) {
 			particle.draw(g); 
 		}
@@ -179,27 +261,27 @@ public class Cube extends PhysicsBox implements DrawableObject {
 	public void emitParticle(){
 			
 			int angle = 0; 
-			long seed = (long)(Math.random() * 10000);
-			
-			Vector2 impulse = new Vector2(0, 0); 
-			Random r = new Random(seed); 
-			
 			isHurt = false; 
 			creationTime = System.nanoTime();
 			
 			for(int i = 0; i < particleAmount; i++){
-				int size = (int)(r.nextDouble()*20) + 5; 
-				Particle aParticle = new Particle("Particle" , Cube.this.getBodyWorldCenter(), size, (long)(Math.random()*10000));
-				aParticle.setCollisionGroup(-1);
+				int size = (int)(random.nextDouble()*20) + 5; 
+				Particle aParticle = new Particle(this.getBodyWorldCenter(), size, angle, random);
 				particles.add(aParticle); 
-				Vector2 pos = this.getBodyWorldCenter();
-				impulse.x = (float) Math.sin(angle)*Gsing.get().pImpulse; 
-				impulse.y = (float) Math.cos(angle)*Gsing.get().pImpulse; 
-				aParticle.applyBodyLinearImpulse(impulse, pos, true); 
 				angle += 180/Gsing.get().cParticleAmount;
 		}
 	}
 
+	public void createTrailParticles() {
+		for (int i = 0; i < CREATION_RATE; i++) {
+			Vector2 position = this.getBodyWorldCenter(); 
+			position.x -= 40; 
+			position.y -= 40; 
+			TrailParticle c = new TrailParticle(position, 10, MAX_AGE + random.nextInt(MAX_AGE / 2), random);
+		}
+	}
+	
+	
 	public void checkParticles4Destruction(){
 		
 	//destroys the particles after a while
@@ -213,10 +295,24 @@ public class Cube extends PhysicsBox implements DrawableObject {
 	}
 
 	public void setDrawAngle(){
+		int chance = (int)(Math.random()*2); 	
+		
+		switch (chance) {
+		case 0:
+			angleIndex = 90;
+			break;
 			
+		case 1:
+			angleIndex = 180; 
+			break;
+	
+		default:
+			break;
+		}
+		
 		drawAngle -= 9;
 		
-		if(drawAngle % 180 == 0){
+		if(drawAngle % angleIndex == 0){
 			checkInAirRotation = false; 
 		}
 	}

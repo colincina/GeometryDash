@@ -11,28 +11,26 @@ import com.badlogic.gdx.math.Vector2;
 public class Particle extends PhysicsBox implements DrawableObject{
 	
 	int size; 
-	Random r;
-	long seed; 
-	
-	public Particle(String name, Vector2 position, int size, long seed){
-		super(name, position, size, size, 50f, 0.5f, 0.5f, 0); 
+	Random random;
+	int angle; 
+	Vector2 impulse = new Vector2(0, 0); 
+
+	public Particle(Vector2 position, int size, int angle, Random rand){
+		super(null, position, size, size, 50f, 0.5f, 0.5f, 0); 
 		this.size = size; 
-		this.seed = seed; 
-		r = new Random(seed);
+		random = rand; 
+		this.setCollisionGroup(-1); 
+		impulse.x = (float) Math.sin(angle)*Gsing.get().pImpulse; 
+		impulse.y = (float) Math.cos(angle)*Gsing.get().pImpulse; 
+		this.applyBodyLinearImpulse(impulse, position, true); 
 	}
 
-	public Particle(String name, Vector2 position){
-		super(name, position, 0, 0);
+	public Particle(Vector2 position){
+		super(null, position, 0, 0);
 	}
 	
 	public void draw(GdxGraphics g) {
-		
-//		r.setSeed(seed);
-//		int red = (int)(r.nextInt()*255);
-//		int green = (int)(r.nextInt()* 255);
-//		int blue = (int)(r.nextInt()* 255);
 		Vector2 pos = this.getBodyWorldCenter(); 
-//		g.drawFilledRectangle(pos.x, pos.y, size, size, this.getBodyAngle(), new Color(red, green, blue, 0)); 
 		g.drawFilledRectangle(pos.x, pos.y, size, size, this.getBodyAngle() * MathUtils.radiansToDegrees, Color.BLACK); 
 
 	}

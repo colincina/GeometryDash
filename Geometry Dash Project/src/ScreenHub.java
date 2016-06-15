@@ -23,7 +23,7 @@ public class ScreenHub extends PortableApplication{
 	    }
 	    
 	    public void onGraphicRender(GdxGraphics g) {
-	        s.render(g);
+	        s.render(g); 
 	    }
 	
 	    public void onClick(int x, int y, int button) {

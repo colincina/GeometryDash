@@ -4,10 +4,10 @@ import java.util.Vector;
 
 import ch.hevs.gdx2d.components.audio.SoundSample;
 import ch.hevs.gdx2d.components.bitmaps.Spritesheet;
+import ch.hevs.gdx2d.components.physics.primitives.PhysicsBox;
 import ch.hevs.gdx2d.components.screen_management.RenderingScreen;
 import ch.hevs.gdx2d.desktop.physics.DebugRenderer;
 import ch.hevs.gdx2d.lib.GdxGraphics;
-import ch.hevs.gdx2d.lib.ScreenManager;
 import ch.hevs.gdx2d.lib.interfaces.DrawableObject;
 import ch.hevs.gdx2d.lib.physics.PhysicsWorld;
 import ch.hevs.gdx2d.lib.utils.Logger;
@@ -30,21 +30,19 @@ public class GameWindow extends RenderingScreen{
 	
 	Vector<DrawableObject> toDraw = new Vector<DrawableObject>();
 	Vector<TrailParticle> trailParticles = new Vector<TrailParticle>(); 
-	Vector<HoleOfTheDamned> holes = new Vector<HoleOfTheDamned>(); 
 	
-	Vector2 globalPosition = new Vector2(1000, 50); 
+	Vector2 globalPosition = new Vector2(0, 50); 
 	
 	Cube cube1;
+	Platform startPlatform; 
 	DoubleJumpBox d; 
 	DebugRenderer debugRenderer;
-	
-	public int CREATION_RATE = 1;
-	public final int MAX_AGE = 10;
-	private int platformLength = 0; 
 	
 	private float xPos = 0; 
 	private float zoom = 0.5f; 
 	
+	private int platformLength = 0; 
+
 	long seed; 
 
 	private boolean debugDraw; 
@@ -66,68 +64,26 @@ public class GameWindow extends RenderingScreen{
 			seed = Gsing.get().enteredSeed; 
 		}
 		
+		else if(Gsing.get().retryMap){
+			seed = Gsing.get().mapGenSeed; 
+			Vector2 position = new Vector2(Gsing.get().totalDistance, 400);
+			VarObstacle beacon = new VarObstacle(position); 
+			toDraw.add(beacon); 
+			Gsing.get().retryMap = false; 
+		}
+		
 		else{
 			Gsing.get().mapGenSeed = (long)(Math.random()*10000); 
 			seed = Gsing.get().mapGenSeed; 
 		}
 		
 		random = new Random(seed); 
-		
 		sLowPulse = new SoundSample("data/sounds/lowpulse.wav");
 		sGameMusic = new SoundSample("data/sounds/Space Travel.mp3"); 
-		
-		
-		
 		world.setGravity(new Vector2(0, -25f));
-		
-		//add the background
-//		toDraw.add(new Background()); 
-		
-		//add the cube
-		cube1 = new Cube(new Vector2(100, 600)); 
-		toDraw.add(cube1); 
-		Logger.log("Cube has been created");
-		
-		//start platform added 
-		toDraw.add(new StartPlatform(2000)); 
-		globalPosition.x += 1000; 
-		
-			for(int i = 0; i < 50; i++){
-				int rand = random.nextInt(4); 
-				switch (rand) {
-				case 0:
-							createMapEntity1();
-							break;
-	
-				case 1: 
-						System.out.println(rand);
-						if(noMore2){
-							break; 
-						}
-						createMapEntity2(); 
-						break; 
-					
-				case 2: 
-						if(noMore3){
-							break; 
-						}
-						createMapEntity3(random.nextBoolean()); 
-						break; 
-					
-				case 3: 
-						if(noMore4){
-							break; 
-						}
-						createMapEntity4(); 
-						break; 
-				default:
-						System.out.println("Numbers are shit");
-						break;
-				}
-			}
-		
+		generateWorld(); 
 		debugRenderer = new DebugRenderer();
-		sGameMusic.loop();
+//		sGameMusic.loop();
 	}
 	
 	public void onGraphicRender(GdxGraphics g) {
@@ -135,77 +91,52 @@ public class GameWindow extends RenderingScreen{
 		g.clear(); 
 		g.setBackgroundColor(Color.WHITE); 
 		
-		/*
-		 * particle trail MAKE A SEPARATE VECTOR FOR THE PARTICLES
-		 */
+		//display some text to see if the cube is grounded 
+			if(cube1.isTouching && !cube1.itsTheEnd)
+			{
+				g.setColor(Color.BLACK); 
+				g.drawString(cube1.getBodyPosition().x, cube1.getBodyPosition().y + 100, "Cube grounded"); 
+				cube1.createTrailParticles();
+			}
+			
+			else if (!cube1.isTouching){
+				g.drawString(cube1.getBodyPosition().x, cube1.getBodyPosition().y + 100, "Cube not grounded"); 
+			}
+		
+		PhysicsWorld.updatePhysics(Gdx.graphics.getDeltaTime());
+		moveCamera(g, cube1); 
+		
+		debugRenderer.render(world, g.getCamera().combined);
+		
 		Array<Body> bodies = new Array<Body>();
 		world.getBodies(bodies);
+
 		Iterator<Body> it = bodies.iterator();
+
 
 		while (it.hasNext()) {
 			Body p = it.next();
+
 			if (p.getUserData() instanceof TrailParticle) {
 				TrailParticle particle = (TrailParticle) p.getUserData();
 				particle.step();
-				trailParticles.add(particle); 
+				particle.draw(g); 
 
-				if (particle.shouldbeDestroyed()) {
-					trailParticles.remove(trailParticles.indexOf(particle)); 
-					particle.destroy();
-				}
-				
-				else{
-					particle.draw(g); 
+				if(!cube1.itsTheEnd){
+					if (particle.shouldbeDestroyed()) {
+						particle.destroy();
+					}
 				}
 			}
 		}
 		
-		PhysicsWorld.updatePhysics(Gdx.graphics.getDeltaTime());
-		
-		holeCollisionNotifier(holes); 
-		
-		//display some text to see if the cube is grounded 
-		if(cube1.isTouching)
-		{
-			g.setColor(Color.BLACK); 
-			g.drawString(cube1.getBodyPosition().x, cube1.getBodyPosition().y + 100, "Cube grounded"); 
-			createParticles();
-		}
-		
-		else if (!cube1.isTouching)
-		{
-			g.setColor(Color.BLACK); 
-			g.drawString(cube1.getBodyPosition().x, cube1.getBodyPosition().y + 100, "Cube not grounded"); 
-		}
-		
-		if(cube1.isBodyFixedRotation()){
-			g.setColor(Color.BLACK); 
-			g.drawString(cube1.getBodyPosition().x, cube1.getBodyPosition().y + 125, "Fix Rot"); 
-		}
-			
-		moveCamera(g, cube1); 
-		debugRenderer.render(world, g.getCamera().combined);
-
 		//Draw the objects
 		if (!debugDraw){
 			for (DrawableObject obj : toDraw) {
 				obj.draw(g); 
 			}
-//			for (TrailParticle part : trailParticles) {
-//				part.draw(g); 
-//			}
 		}
 		
-		
-		//check if the cube has encountered an obstacle
-		if(cube1.isHurt)
-		{
-			cube1.emitParticle(); 
-		}
-		
-		if(cube1.cubeDead){
-			ScreenHub.s.transitionTo(2, ScreenManager.TransactionType.SLICE); 
-		}
 		
 		g.drawFPS(Color.WHITE);
 	}
@@ -219,8 +150,13 @@ public class GameWindow extends RenderingScreen{
 	@Override
 	public void onKeyDown(int keycode) {
 
-		if(keycode == Keys.SPACE && cube1.isTouching){
+		if(keycode == Keys.SPACE && cube1.isTouching && cube1.jumpMode){
 			cube1.jump = true;
+		}
+		
+		if(keycode == Keys.SPACE && cube1.isTouching && cube1.flyMode){
+			cube1.fly = true;
+			System.out.println("the cube can fly !!!!!");
 		}
 		
 		if (keycode == Keys.D){
@@ -235,29 +171,8 @@ public class GameWindow extends RenderingScreen{
 		}
 	}
 	
-	public boolean holeCollisionNotifier(Vector<HoleOfTheDamned> holes){
-		for (HoleOfTheDamned holeOfTheDamned : holes) {
-			if(holeOfTheDamned.playerDiedInMe){
-				Logger.log("Cube is dead in " + holeOfTheDamned.name); 
-				return true; 
-			}
-		}
-		return false; 
-	}
-	
 	public void moveCamera(GdxGraphics g, Cube cube)
 	{
-//		if(birthAnim){
-//			g.getCamera().zoom = zoom;
-//			Vector2 pos = cube.getBodyWorldCenter(); 
-//			g.moveCamera(pos.x + g.getScreenWidth()/2, pos.y + g.getScreenHeight()/2); 
-//			if(zoom >= 1){
-//				birthAnim = false; 
-//				g.getCamera().zoom = 1f; 
-//			}
-//			zoom += 0.005; 
-//		}
-		
 		float h = 3*(g.getScreenHeight()/4); 
 		float y = cube.getBodyWorldCenter().y ;
 		
@@ -269,7 +184,6 @@ public class GameWindow extends RenderingScreen{
 				y = y - h; 
 	//			g.getCamera().zoom = 2f; 
 			}
-		
 		g.moveCamera(cube.getBodyWorldCenter().x - 1000, y);
 	}
 	
@@ -280,7 +194,6 @@ public class GameWindow extends RenderingScreen{
 		MapEntity1 mapPart = new MapEntity1(platformLength, globalPosition, sDeath); 
 		globalPosition.x += (Gsing.get().holeWidthme1/2 + platformLength); 
 		toDraw.add(mapPart); 
-		holes.add(mapPart.hole);
 		noMore3 = false; 
 		noMore2 = false; 
 	}
@@ -328,19 +241,96 @@ public class GameWindow extends RenderingScreen{
 		noMore3 = false; 
 	}
 	
-	void createParticles() {
-		for (int i = 0; i < CREATION_RATE; i++) {
-			Vector2 position = cube1.getBodyWorldCenter(); 
-			position.x -= 40; 
-			position.y -= 40; 
-			TrailParticle c = new TrailParticle(position, 10, MAX_AGE + random.nextInt(MAX_AGE / 2));
-
-			// Apply a vertical force with some random horizontal component
-			Vector2 force = new Vector2();
-			force.x = random.nextFloat() * -0.00095f;
-			force.y = random.nextFloat() * 0.0004f * (random.nextBoolean() == true ? -1 : 1);
-			c.applyBodyLinearImpulse(force, position, true);
-		}
+	protected void generateWorld(){
+		//add the background
+//		toDraw.add(new Background()); 
+		
+		//add the cube
+		cube1 = new Cube(new Vector2(-500, 600), random); 
+		toDraw.add(cube1); 
+		Logger.log("Cube has been created");
+		
+		//start platform added
+		startPlatform = new Platform(globalPosition, 2000, 100); 
+		startPlatform.enableCollisionListener(); 
+		toDraw.add(startPlatform); 
+		globalPosition.x += 1000; 
+		
+			for(int i = 0; i < 5; i++){
+				int rand = random.nextInt(4); 
+				switch (rand) {
+				case 0:
+						createMapEntity1();
+							break;
+	
+				case 1: 
+						System.out.println(rand);
+						if(noMore2){
+							break; 
+						}
+						createMapEntity2(); 
+						break; 
+					
+				case 2: 
+						if(noMore3){
+							break; 
+						}
+						createMapEntity3(random.nextBoolean()); 
+						break; 
+					
+				case 3: 
+						if(noMore4){
+							break; 
+						}
+						createMapEntity4(); 
+						break; 
+				default:
+						System.out.println("Numbers are shit");
+						break;
+				}
+			}
+			
+		globalPosition.x += 9500; 
+		AirTime yolo = new AirTime(15000, 200, globalPosition, random); 
+		toDraw.add(yolo); 
+			
+			for(int i = 0; i < 5; i++){
+				int rand = random.nextInt(4); 
+				switch (rand) {
+				case 0:
+						createMapEntity1();
+							break;
+	
+				case 1: 
+						System.out.println(rand);
+						if(noMore2){
+							break; 
+						}
+						createMapEntity2(); 
+						break; 
+					
+				case 2: 
+						if(noMore3){
+							break; 
+						}
+						createMapEntity3(random.nextBoolean()); 
+						break; 
+					
+				case 3: 
+						if(noMore4){
+							break; 
+						}
+						createMapEntity4(); 
+						break; 
+				default:
+						System.out.println("Numbers are shit");
+						break;
+				}
+			}
+		globalPosition.x += 1000;
+		globalPosition.y = 50;
+		EndPlatform theEnd = new EndPlatform(globalPosition, 2000, 100); 
+		toDraw.add(theEnd); 
 	}
 
 	public static void main(String args[]){

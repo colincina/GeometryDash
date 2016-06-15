@@ -12,7 +12,7 @@ public class MapEntity4 implements DrawableObject {
 	SoundSample loveHurts; 
 	int height = Gsing.get().platformHeight; 
 	int width; 
-	Random r = new Random(); 
+	Random r; 
 	Vector2 obsPos = new Vector2(0,0); 
 	
 	//Same sound sample as if the cube had touched a VarObstacle

@@ -1,3 +1,4 @@
+import ch.hevs.gdx2d.components.bitmaps.BitmapImage;
 import ch.hevs.gdx2d.components.screen_management.RenderingScreen;
 import ch.hevs.gdx2d.desktop.PortableApplication;
 import ch.hevs.gdx2d.lib.GdxGraphics;
@@ -20,10 +21,11 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 public class GameOverWindow extends RenderingScreen{
 	Skin skin;
 	Stage stage;
-	TextButton newGameButton, quitGameButton;
+	TextButton newGameButton, quitGameButton, retryButton;
 	TextField textArea;
 	int stateCounter = 0; 
 	String state; 
+	BitmapImage bckgrnd; 
 
 	public static void main(String[] args) {
 		new GameOverWindow();
@@ -34,7 +36,7 @@ public class GameOverWindow extends RenderingScreen{
 		
 		int buttonWidth = 180;
 		int buttonHeight = 30;
-
+		bckgrnd = new BitmapImage("data/images/CrownNebula.bmp/");
 //		setTitle("Jumping Cube");
 
 		stage = new Stage();
@@ -53,30 +55,22 @@ public class GameOverWindow extends RenderingScreen{
 		quitGameButton = new TextButton("Quit", skin); // Use the initialized skin
 		quitGameButton.setWidth(buttonWidth);
 		quitGameButton.setHeight(buttonHeight);
+		
+		retryButton = new TextButton("Retry the same map", skin); 
+		retryButton.setWidth(buttonWidth);
+		retryButton.setHeight(buttonHeight);
 
 		newGameButton.setPosition(Gdx.graphics.getWidth() / 2 - buttonWidth / 2, (int) (Gdx.graphics.getHeight() * .6));
 		quitGameButton.setPosition(Gdx.graphics.getWidth() / 2 - buttonWidth / 2, (int) (Gdx.graphics.getHeight() * .7));
-
-		textArea = new TextField("Enter your name...", skin);
-		textArea.setWidth(buttonWidth);
-		textArea.setPosition(Gdx.graphics.getWidth() / 2 - buttonWidth / 2, (int) (Gdx.graphics.getHeight() * .4));
-
-		textArea.setTextFieldListener(new TextFieldListener() {
-			public void keyTyped(TextField textField, char key) {
-				textArea.setSelection(0, 0);
-
-				// When you press 'enter', do something
-				if (key == 13)
-					Logger.log("You have typed " + textArea.getText());
-			}
-		});
+		retryButton.setPosition(Gdx.graphics.getWidth() / 2 - buttonWidth/2, (int) (Gdx.graphics.getHeight() * .8)); 
+		
 
 		/**
 		 * Adds the buttons to the stage
 		 */
 		stage.addActor(newGameButton);
 		stage.addActor(quitGameButton);
-		stage.addActor(textArea);
+		stage.addActor(retryButton); 
 
 		/**
 		 * Register listener
@@ -96,24 +90,29 @@ public class GameOverWindow extends RenderingScreen{
 				System.exit(0); 
 			}
 		});
+		
+		retryButton.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				super.clicked(event, x, y);
+				Gsing.get().retryMap = true; 
+				ScreenHub.s.transitionTo(1, ScreenManager.TransactionType.SMOOTH); 
+			}
+		});
 	}
-
+		
 	public void onGraphicRender(GdxGraphics g) {
-		g.clear();
+		g.clear(Color.BLACK);
+		g.drawBackground(bckgrnd, 0, 0); 
 
 		// This is required for having the GUI work properly
-
-//		stage.act();
-//		stage.draw();
-//		g.setColor(Color.GREEN); 
-//		g.drawStringCentered(Gdx.graphics.getHeight()/2, "Congratulation! Your journey was " + Gsing.get().totalDistance + "Long!");
-//		System.out.println("HIHI" + Gsing.get().totalDistance/10);
-//		g.drawStringCentered(700, "Seed : " + Gsing.get().mapGenSeed);
+		stage.act();
+		stage.draw();
+		g.setColor(Color.GREEN); 
+		g.drawStringCentered(Gdx.graphics.getHeight()/2, "Congratulation! Your journey was " + Gsing.get().totalDistance + "Long!");
+		g.drawStringCentered(700, "Seed : " + Gsing.get().mapGenSeed);
 //		g.drawStringCentered(getWindowHeight() / 4, "Colin Cina & Martin Juon");
 		g.drawSchoolLogo();
-		g.drawFilledRectangle(100,100,100,100,0,Color.BLACK);
-		g.drawFilledCircle(100,100,100,Color.CYAN);
-		g.drawFilledRectangle(100,100,100,100,0,Color.GREEN);
 		g.drawFPS();
 	}
 

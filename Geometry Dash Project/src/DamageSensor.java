@@ -5,13 +5,13 @@ import ch.hevs.gdx2d.lib.GdxGraphics;
 import ch.hevs.gdx2d.lib.interfaces.DrawableObject;
 import ch.hevs.gdx2d.lib.physics.AbstractPhysicsObject;
 
-public class Sensor extends PhysicsStaticBox implements DrawableObject {
+public class DamageSensor extends PhysicsStaticBox implements DrawableObject {
 
 	int height; 
 	int width; 
 	boolean alreadyCollided = false; 
 	
-	public Sensor(Vector2 position, int width, int height) {
+	public DamageSensor(Vector2 position, int width, int height) {
 		super(null, position, width, height);
 		this.width = width; 
 		this.height = height; 
